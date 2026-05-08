@@ -24,3 +24,72 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Custom animations untuk chat widget */
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+.animate-bounce {
+  animation: bounce 0.6s infinite;
+}
+
+/* Smooth transitions untuk chat window */
+.transition-all {
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 300ms;
+}
+
+/* Scrollbar styling untuk chat messages (opsional) */
+.overflow-y-auto::-webkit-scrollbar {
+  width: 6px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 10px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* Dark mode support untuk chat */
+@media (prefers-color-scheme: dark) {
+  .bg-white {
+    background-color: #1f1f1f !important;
+  }
+  
+  .bg-gray-50 {
+    background-color: #2a2a2a !important;
+  }
+  
+  .text-gray-700 {
+    color: #e0e0e0 !important;
+  }
+  
+  .border-gray-200 {
+    border-color: #404040 !important;
+  }
+  
+  input {
+    background-color: #2a2a2a;
+    color: #e0e0e0;
+    border-color: #404040;
+  }
+  
+  input:focus {
+    border-color: #3b82f6;
+  }
+}
