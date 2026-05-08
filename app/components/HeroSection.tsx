@@ -12,7 +12,7 @@ export default function HeroSection() {
         </h1>
         <p className="text-xl mb-8 max-w-2xl mx-auto">
           Bergabunglah dengan komunitas akademik yang unggul dan inovatif di Universitas Bandar Lampung. 
-          Wujudkan impian karir Anda melalui pendidikan berkualitas dengan fasilitas terbaikkkk.
+          Wujudkan impian karir Anda melalui pendidikan berkualitas dengan fasilitas terbaik aja.
         </p>
         
         <div className="flex justify-center gap-8 mb-12">
