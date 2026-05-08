@@ -1,0 +1,56 @@
+name: Deploy to VPS
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:  # Manual trigger
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.npm
+            node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: 22
+          script: |
+            set -e  # Stop on error
+            
+            echo "📍 Current directory: $(pwd)"
+            echo "📦 Pulling latest code..."
+            cd /home/ubuntu/spmb2
+            git checkout main
+            git pull origin main
+            
+            echo "📦 Installing dependencies..."
+            npm install --production=false
+            
+            echo "🔨 Building application..."
+            npm run build
+            
+            echo "🔄 Restarting PM2..."
+            pm2 restart spmb || pm2 start npm --name "spmb" -- run start
+            pm2 save
+            
+            echo "✅ Deployment completed!"
