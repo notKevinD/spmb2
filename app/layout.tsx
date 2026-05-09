@@ -1,66 +1,112 @@
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
+import { Geist } from 'next/font/google';
 import './globals.css';
 import Link from 'next/link';
 import Chatbot from './components/Chatbot';
-const inter = Inter({ subsets: ['latin'] });
 import Navbar from './components/Navbar';
+import { GraduationCap, MapPin, Phone, Mail, Camera, Video } from 'lucide-react';
+
+const geist = Geist({ subsets: ['latin'] });
+
 export const metadata: Metadata = {
-  title: 'PMB - Universitas Bandar Lampung',
-  description: 'Penerimaan Mahasiswa Baru Universitas Bandar Lampung',
+  title: 'PMB 2026 — Universitas Bandar Lampung',
+  description: 'Penerimaan Mahasiswa Baru Universitas Bandar Lampung 2026/2027. Daftar sekarang dan mulai perjalanan akademik terbaik Anda.',
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="id">
-      <body className={inter.className}>
-        {/* Navbar */}
+      <body className={geist.className}>
         <Navbar />
-
         {children}
 
         {/* Footer */}
-        <footer className="bg-gray-900 text-white py-12">
-          <div className="container mx-auto px-4">
-            <div className="grid md:grid-cols-4 gap-8">
-              <div>
-                <h3 className="text-xl font-bold mb-4">UBL PMB</h3>
-                <p className="text-gray-400">
-                  Universitas Bandar Lampung - Membangun Generasi Unggul dan Inovatif
+        <footer className="bg-[#060f1e] text-white">
+          {/* Top footer */}
+          <div className="max-w-7xl mx-auto px-6 py-16">
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-10">
+              {/* Brand */}
+              <div className="lg:col-span-1">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#e8b84b] to-[#d4a030] flex items-center justify-center">
+                    <GraduationCap className="w-5 h-5 text-[#0a1628]" />
+                  </div>
+                  <div>
+                    <p className="font-black text-white text-base">UBL PMB</p>
+                    <p className="text-[#e8b84b] text-xs font-semibold tracking-widest">2026/2027</p>
+                  </div>
+                </div>
+                <p className="text-white/40 text-sm leading-relaxed">
+                  Universitas Bandar Lampung — Membangun Generasi Unggul dan Inovatif untuk Indonesia.
                 </p>
               </div>
+
+              {/* Contact */}
               <div>
-                <h4 className="font-semibold mb-4">Kontak</h4>
-                <p className="text-gray-400">Jl. ZA. Pagar Alam No.26</p>
-                <p className="text-gray-400">Bandar Lampung, Lampung</p>
-                <p className="text-gray-400">Telp: (0721) 123456</p>
-                <p className="text-gray-400">Email: pmb@ubl.ac.id</p>
+                <h4 className="text-white font-bold mb-5 text-sm uppercase tracking-wider">Kontak</h4>
+                <div className="space-y-3">
+                  <div className="flex items-start gap-3 text-white/40 text-sm">
+                    <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0 text-white/20" />
+                    <span>Jl. ZA. Pagar Alam No.26, Bandar Lampung</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-white/40 text-sm">
+                    <Phone className="w-4 h-4 flex-shrink-0 text-white/20" />
+                    <span>(0721) 123456</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-white/40 text-sm">
+                    <Mail className="w-4 h-4 flex-shrink-0 text-white/20" />
+                    <span>pmb@ubl.ac.id</span>
+                  </div>
+                </div>
               </div>
+
+              {/* Links */}
               <div>
-                <h4 className="font-semibold mb-4">Link Penting</h4>
-                <ul className="space-y-2 text-gray-400">
-                  <li><Link href="#" className="hover:text-white">Jadwal Pendaftaran</Link></li>
-                  <li><Link href="#" className="hover:text-white">Biaya Kuliah</Link></li>
-                  <li><Link href="#" className="hover:text-white">Fasilitas</Link></li>
-                  <li><Link href="#" className="hover:text-white">FAQ</Link></li>
+                <h4 className="text-white font-bold mb-5 text-sm uppercase tracking-wider">Link Penting</h4>
+                <ul className="space-y-3">
+                  {['Jadwal Pendaftaran', 'Biaya Kuliah', 'Fasilitas Kampus', 'FAQ PMB'].map((item) => (
+                    <li key={item}>
+                      <Link href="#" className="text-white/40 hover:text-white text-sm transition-colors">
+                        {item}
+                      </Link>
+                    </li>
+                  ))}
                 </ul>
               </div>
+
+              {/* Social */}
               <div>
-                <h4 className="font-semibold mb-4">Ikuti Kami</h4>
-                <p className="text-gray-400">Instagram: @ubl_official</p>
-                <p className="text-gray-400">Facebook: UBL Official</p>
-                <p className="text-gray-400">YouTube: UBL Channel</p>
+                <h4 className="text-white font-bold mb-5 text-sm uppercase tracking-wider">Ikuti Kami</h4>
+                <div className="space-y-3">
+                  {[
+                    { icon: Camera, label: '@ubl_official', href: '#' },
+                    { icon: Video, label: 'UBL Channel', href: '#' },
+                  ].map(({ icon: Icon, label, href }) => (
+                    <Link
+                      key={label}
+                      href={href}
+                      className="flex items-center gap-3 text-white/40 hover:text-white text-sm transition-colors group"
+                    >
+                      <div className="w-8 h-8 rounded-lg bg-white/5 group-hover:bg-white/10 flex items-center justify-center transition-colors">
+                        <Icon className="w-4 h-4" />
+                      </div>
+                      {label}
+                    </Link>
+                  ))}
+                </div>
               </div>
             </div>
-            <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-              <p>&copy; 2026 PMB UBL. All rights reserved.</p>
+          </div>
+
+          {/* Bottom bar */}
+          <div className="border-t border-white/5 px-6 py-5">
+            <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-3">
+              <p className="text-white/30 text-xs">© 2026 PMB Universitas Bandar Lampung. All rights reserved.</p>
+              <p className="text-white/20 text-xs">Terakreditasi oleh BAN-PT</p>
             </div>
           </div>
         </footer>
+
         <Chatbot />
       </body>
     </html>

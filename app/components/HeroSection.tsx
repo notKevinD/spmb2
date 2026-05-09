@@ -1,44 +1,124 @@
-import { Calendar, Award, Users, BookOpen } from 'lucide-react';
+import { BookOpen, Users, Award, ArrowRight, CheckCircle } from 'lucide-react';
 
 export default function HeroSection() {
   return (
-    <section className="relative bg-gradient-to-r from-blue-900 to-blue-700 text-white py-20">
-      <div className="container mx-auto px-4 text-center">
-        <div className="inline-block bg-yellow-500 text-blue-900 px-4 py-1 rounded-full text-sm font-semibold mb-4">
-          Pendaftaran Madani 1 Dibuka
-        </div>
-        <h1 className="text-5xl md:text-6xl font-bold mb-4">
-          Penerimaan Mahasiswa Baru
-        </h1>
-        <p className="text-xl mb-8 max-w-2xl mx-auto">
-          Bergabunglah dengan komunitas akademik yang unggul dan inovatif di Universitas Bandar Lampung. 
-          Wujudkan impian karir Anda melalui pendidikan berkualitas dengan fasilitas terbaik aja.
-        </p>
-        
-        <div className="flex justify-center gap-8 mb-12">
-          <div className="flex items-center gap-2">
-            <BookOpen className="w-6 h-6" />
-            <span className="font-semibold">10+</span>
-            <span>Program Studi</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Users className="w-6 h-6" />
-            <span className="font-semibold">5K+</span>
-            <span>Mahasiswa</span>
-          </div>
-        </div>
+    <section className="relative bg-[#0a1628] min-h-[92vh] flex items-center overflow-hidden">
+      {/* Background decorative elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -right-40 w-96 h-96 rounded-full bg-[#e8b84b]/8 blur-3xl" />
+        <div className="absolute top-1/2 -left-20 w-72 h-72 rounded-full bg-blue-600/10 blur-3xl" />
+        <div className="absolute bottom-0 right-1/3 w-64 h-64 rounded-full bg-[#e8b84b]/5 blur-3xl" />
+        {/* Grid pattern */}
+        <div
+          className="absolute inset-0 opacity-[0.03]"
+          style={{
+            backgroundImage: 'linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)',
+            backgroundSize: '48px 48px',
+          }}
+        />
+      </div>
 
-        <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6 max-w-md mx-auto">
-          <h3 className="text-2xl font-bold mb-2">PMB 2026/2027</h3>
-          <p className="text-yellow-400 font-semibold mb-2">Pendaftaran Telah Dibuka</p>
-          <div className="flex justify-center gap-4 text-sm">
-            <div>
-              <p className="font-semibold">Madani 1</p>
-              <p>April 2026 - Mei 2026</p>
+      <div className="max-w-7xl mx-auto px-6 py-24 relative z-10 w-full">
+        <div className="grid lg:grid-cols-2 gap-16 items-center">
+          {/* Left Content */}
+          <div>
+            {/* Badge */}
+            <div className="inline-flex items-center gap-2 bg-[#e8b84b]/15 border border-[#e8b84b]/30 text-[#e8b84b] px-4 py-2 rounded-full text-sm font-semibold mb-8">
+              <span className="w-2 h-2 bg-[#e8b84b] rounded-full animate-pulse" />
+              Pendaftaran Madani 1 — Sedang Berlangsung
             </div>
-            <div className="border-l border-white/30 pl-4">
-              <p className="font-semibold">Terakreditasi</p>
-              <p>Unggul</p>
+
+            <h1 className="text-5xl lg:text-6xl font-black text-white leading-[1.05] mb-6 tracking-tight">
+              Mulai Perjalanan{' '}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#e8b84b] to-[#f0c45a]">
+                Akademik
+              </span>{' '}
+              Terbaik Anda
+            </h1>
+
+            <p className="text-white/60 text-lg leading-relaxed mb-10 max-w-lg">
+              Bergabunglah dengan komunitas akademik yang unggul di Universitas Bandar Lampung.
+              Raih masa depan gemilang melalui pendidikan berkualitas dan fasilitas modern.
+            </p>
+
+            {/* CTA Buttons */}
+            <div className="flex flex-col sm:flex-row gap-4 mb-12">
+              <button className="group flex items-center justify-center gap-2 bg-[#e8b84b] text-[#0a1628] px-7 py-4 rounded-xl font-bold text-base hover:bg-[#f0c45a] transition-all duration-200 shadow-xl shadow-[#e8b84b]/25 hover:shadow-[#e8b84b]/40 hover:scale-[1.02]">
+                Daftar Sekarang
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </button>
+              <button className="flex items-center justify-center gap-2 border border-white/20 text-white px-7 py-4 rounded-xl font-semibold text-base hover:bg-white/10 hover:border-white/40 transition-all duration-200">
+                Lihat Program Studi
+              </button>
+            </div>
+
+            {/* Trust indicators */}
+            <div className="flex flex-wrap gap-6">
+              {[
+                'Akreditasi Unggul',
+                'Beasiswa Tersedia',
+                'Kelas Profesional',
+              ].map((item) => (
+                <div key={item} className="flex items-center gap-2 text-white/50 text-sm">
+                  <CheckCircle className="w-4 h-4 text-[#e8b84b]" />
+                  <span>{item}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Right Content — Stats Cards */}
+          <div className="space-y-4 lg:pl-8">
+            {/* PMB Info Card */}
+            <div className="bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-sm">
+              <div className="flex items-start justify-between mb-4">
+                <div>
+                  <p className="text-white/50 text-xs uppercase tracking-widest font-semibold mb-1">Tahun Akademik</p>
+                  <h3 className="text-white font-black text-2xl">PMB 2026/2027</h3>
+                </div>
+                <span className="bg-green-500/20 text-green-400 border border-green-500/30 text-xs font-bold px-3 py-1.5 rounded-full">
+                  BUKA
+                </span>
+              </div>
+              <div className="grid grid-cols-2 gap-4 pt-4 border-t border-white/10">
+                <div>
+                  <p className="text-[#e8b84b] font-bold text-sm">Gelombang Madani 1</p>
+                  <p className="text-white/50 text-xs mt-1">April — Mei 2026</p>
+                </div>
+                <div>
+                  <p className="text-[#e8b84b] font-bold text-sm">Status</p>
+                  <p className="text-white/50 text-xs mt-1">Terakreditasi Unggul</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Stats Row */}
+            <div className="grid grid-cols-3 gap-4">
+              {[
+                { icon: BookOpen, value: '10+', label: 'Program Studi', color: 'from-blue-500 to-blue-600' },
+                { icon: Users, value: '5K+', label: 'Mahasiswa Aktif', color: 'from-[#e8b84b] to-[#d4a030]' },
+                { icon: Award, value: 'A', label: 'Akreditasi BAN-PT', color: 'from-green-500 to-green-600' },
+              ].map((stat) => (
+                <div key={stat.label} className="bg-white/5 border border-white/10 rounded-2xl p-4 text-center hover:bg-white/8 transition-colors">
+                  <div className={`w-9 h-9 rounded-xl bg-gradient-to-br ${stat.color} flex items-center justify-center mx-auto mb-3`}>
+                    <stat.icon className="w-4 h-4 text-white" />
+                  </div>
+                  <p className="text-white font-black text-xl">{stat.value}</p>
+                  <p className="text-white/40 text-xs mt-0.5 leading-tight">{stat.label}</p>
+                </div>
+              ))}
+            </div>
+
+            {/* Fakultas pills */}
+            <div className="bg-white/5 border border-white/10 rounded-2xl p-5">
+              <p className="text-white/40 text-xs uppercase tracking-widest font-semibold mb-3">Fakultas Tersedia</p>
+              <div className="flex flex-wrap gap-2">
+                {['Ekonomi & Bisnis', 'Ilmu Komputer', 'Teknik', 'Hukum', 'FISIP', 'FKIP'].map((f) => (
+                  <span key={f} className="bg-white/8 border border-white/10 text-white/70 text-xs px-3 py-1.5 rounded-lg font-medium">
+                    {f}
+                  </span>
+                ))}
+              </div>
             </div>
           </div>
         </div>
