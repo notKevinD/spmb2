@@ -30,7 +30,7 @@ export default function HeroSection() {
 
             <h1 className="text-5xl lg:text-6xl font-black text-white leading-[1.05] mb-6 tracking-tight">
               Mulai Perjalanan{' '}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#e8b84b] to-[#f0c45a]">
+              <span className="text-transparent bg-clip-text bg-linear-to-r from-[#e8b84b] to-[#f0c45a]">
                 Akademik
               </span>{' '}
               Terbaik Anda
@@ -100,7 +100,7 @@ export default function HeroSection() {
                 { icon: Award, value: 'A', label: 'Akreditasi BAN-PT', color: 'from-green-500 to-green-600' },
               ].map((stat) => (
                 <div key={stat.label} className="bg-white/5 border border-white/10 rounded-2xl p-4 text-center hover:bg-white/8 transition-colors">
-                  <div className={`w-9 h-9 rounded-xl bg-gradient-to-br ${stat.color} flex items-center justify-center mx-auto mb-3`}>
+                  <div className={`w-9 h-9 rounded-xl bg-linear-to-br ${stat.color} flex items-center justify-center mx-auto mb-3`}>
                     <stat.icon className="w-4 h-4 text-white" />
                   </div>
                   <p className="text-white font-black text-xl">{stat.value}</p>

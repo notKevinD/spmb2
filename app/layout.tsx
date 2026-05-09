@@ -28,7 +28,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               {/* Brand */}
               <div className="lg:col-span-1">
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#e8b84b] to-[#d4a030] flex items-center justify-center">
+                  <div className="w-9 h-9 rounded-xl bg-linear-to-br from-[#e8b84b] to-[#d4a030] flex items-center justify-center">
                     <GraduationCap className="w-5 h-5 text-[#0a1628]" />
                   </div>
                   <div>
@@ -46,15 +46,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <h4 className="text-white font-bold mb-5 text-sm uppercase tracking-wider">Kontak</h4>
                 <div className="space-y-3">
                   <div className="flex items-start gap-3 text-white/40 text-sm">
-                    <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0 text-white/20" />
+                    <MapPin className="w-4 h-4 mt-0.5 shrink-0 text-white/20" />
                     <span>Jl. ZA. Pagar Alam No.26, Bandar Lampung</span>
                   </div>
                   <div className="flex items-center gap-3 text-white/40 text-sm">
-                    <Phone className="w-4 h-4 flex-shrink-0 text-white/20" />
+                    <Phone className="w-4 h-4 shrink-0 text-white/20" />
                     <span>(0721) 123456</span>
                   </div>
                   <div className="flex items-center gap-3 text-white/40 text-sm">
-                    <Mail className="w-4 h-4 flex-shrink-0 text-white/20" />
+                    <Mail className="w-4 h-4 shrink-0 text-white/20" />
                     <span>pmb@ubl.ac.id</span>
                   </div>
                 </div>
