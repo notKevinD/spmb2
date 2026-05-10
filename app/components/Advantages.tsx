@@ -38,7 +38,7 @@ export default function Advantages() {
         <div className="text-center max-w-2xl mx-auto mb-16">
           <p className="text-[#e8b84b] font-bold text-sm uppercase tracking-widest mb-3">Mengapa UBL?</p>
           <h2 className="text-4xl lg:text-5xl font-black text-[#0a1628] leading-tight mb-4">
-            Keunggulan Universitas<br />Bandar Lampung
+            Keunggulan Universitas<br />Bandar Lappung
           </h2>
           <p className="text-gray-500 text-lg">
             Komitmen kami dalam memberikan pendidikan terbaik didukung fasilitas modern dan lingkungan belajar yang inspiratif.
