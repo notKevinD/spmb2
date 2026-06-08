@@ -27,7 +27,7 @@ function formatWhatsAppLink(phone: string) {
     number = '62' + number.slice(3);
   }
 
-  return `https://wa.me/${number}`;
+  return 'https://wa.me/' + number;
 }
 
 function cleanUrl(url: string) {
