@@ -7,6 +7,102 @@ type Message = {
   content: string;
 };
 
+function formatWhatsAppLink(phone: string) {
+  let number = phone.replace(/\D/g, '');
+
+  if (number.startsWith('0')) {
+    number = '62' + number.slice(1);
+  }
+
+  if (number.startsWith('620')) {
+    number = '62' + number.slice(3);
+  }
+
+  return `https://wa.me/${number}`;
+}
+
+function cleanUrl(url: string) {
+  const trailingPunctuation = /[.,!?;:)]+$/;
+  const match = url.match(trailingPunctuation);
+
+  if (!match) {
+    return { clean: url, trailing: '' };
+  }
+
+  return {
+    clean: url.slice(0, -match[0].length),
+    trailing: match[0],
+  };
+}
+
+function renderMessageWithLinks(text: string, isUser: boolean) {
+  const combinedRegex =
+    /(https?:\/\/[^\s]+|www\.[^\s]+|(\+62|62|0)[0-9][0-9\s-]{7,15}[0-9])/g;
+
+  const elements: React.ReactNode[] = [];
+  let lastIndex = 0;
+  let match;
+
+  while ((match = combinedRegex.exec(text)) !== null) {
+    const matchedText = match[0];
+
+    if (match.index > lastIndex) {
+      elements.push(text.slice(lastIndex, match.index));
+    }
+
+    const isUrl =
+      matchedText.startsWith('http://') ||
+      matchedText.startsWith('https://') ||
+      matchedText.startsWith('www.');
+
+    const linkClass = isUser
+      ? 'underline font-medium text-white'
+      : 'text-blue-600 underline font-medium';
+
+    if (isUrl) {
+      const { clean, trailing } = cleanUrl(matchedText);
+      const href = clean.startsWith('www.') ? `https://${clean}` : clean;
+
+      elements.push(
+        <a
+          key={`url-${match.index}`}
+          href={href}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={linkClass}
+        >
+          {clean}
+        </a>
+      );
+
+      if (trailing) {
+        elements.push(trailing);
+      }
+    } else {
+      elements.push(
+        <a
+          key={`phone-${match.index}`}
+          href={formatWhatsAppLink(matchedText)}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={linkClass}
+        >
+          {matchedText}
+        </a>
+      );
+    }
+
+    lastIndex = match.index + matchedText.length;
+  }
+
+  if (lastIndex < text.length) {
+    elements.push(text.slice(lastIndex));
+  }
+
+  return elements;
+}
+
+
 export default function Chatbot() {
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
@@ -71,7 +167,7 @@ export default function Chatbot() {
         const res = await fetch('/api/chat/new-session', { method: 'POST' });
         const data = await res.json();
         if (data.success) {
-          setMessages([{ role: 'assistant', content: '👋 Memulai percakapan baru! Ada yang bisa saya bantu?' }]);
+          setMessages([{ role: 'assistant', content: 'Memulai percakapan baru! Ada yang bisa saya bantu?' }]);
           setSessionId(data.sessionId);
           setShowWarning(false);
         }
@@ -152,23 +248,23 @@ export default function Chatbot() {
             <div className="w-14 h-14 rounded-full bg-gray-100 flex items-center justify-center mb-4">
               <MessageCircle className="w-7 h-7 text-gray-300" />
             </div>
-            <p className="text-[#0a1628] font-semibold text-sm">Halo! 👋</p>
+            <p className="text-[#0a1628] font-semibold text-sm">Halo! </p>
             <p className="text-xs mt-1 text-gray-400">Ada yang bisa saya bantu?</p>
             <p className="text-xs text-gray-300 mt-3">Informasi PMB, Program Studi, atau Beasiswa</p>
           </div>
         )}
 
         {messages.map((message, index) => (
-          <div key={index} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-            <div className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${
-              message.role === 'user'
-                ? 'bg-[#0a1628] text-white rounded-br-sm'
-                : 'bg-white border border-gray-100 text-gray-700 shadow-sm rounded-bl-sm'
-            }`}>
-              {message.content}
-            </div>
-          </div>
-        ))}
+  <div key={index} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+    <div className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed whitespace-pre-line ${
+      message.role === 'user'
+        ? 'bg-[#0a1628] text-white rounded-br-sm'
+        : 'bg-white border border-gray-100 text-gray-700 shadow-sm rounded-bl-sm'
+    }`}>
+      {renderMessageWithLinks(message.content, message.role === 'user')}
+    </div>
+  </div>
+))}
 
         {isLoading && (
           <div className="flex justify-start">
