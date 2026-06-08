@@ -1,4 +1,3 @@
-```tsx
 'use client';
 
 import { useState, useEffect, useRef, type ReactNode } from 'react';
@@ -35,7 +34,10 @@ function cleanUrl(url: string) {
   const match = url.match(trailingPunctuation);
 
   if (!match) {
-    return { clean: url, trailing: '' };
+    return {
+      clean: url,
+      trailing: '',
+    };
   }
 
   return {
@@ -65,12 +67,14 @@ function renderMessageWithLinks(text: string) {
       matchedText.startsWith('www.');
 
     if (isUrl) {
-      const { clean, trailing } = cleanUrl(matchedText);
-      const href = clean.startsWith('www.') ? `https://${clean}` : clean;
+      const urlData = cleanUrl(matchedText);
+      const clean = urlData.clean;
+      const trailing = urlData.trailing;
+      const href = clean.startsWith('www.') ? 'https://' + clean : clean;
 
       elements.push(
         <a
-          key={`url-${match.index}`}
+          key={'url-' + match.index}
           href={href}
           target="_blank"
           rel="noopener noreferrer"
@@ -86,7 +90,7 @@ function renderMessageWithLinks(text: string) {
     } else {
       elements.push(
         <a
-          key={`phone-${match.index}`}
+          key={'phone-' + match.index}
           href={formatWhatsAppLink(matchedText)}
           target="_blank"
           rel="noopener noreferrer"
@@ -154,8 +158,12 @@ export default function Chatbot() {
     setInput('');
     setMessages((prev) => [
       ...prev,
-      { role: 'user', content: userMessage },
+      {
+        role: 'user',
+        content: userMessage,
+      },
     ]);
+
     setIsLoading(true);
 
     try {
@@ -218,6 +226,7 @@ export default function Chatbot() {
               content: 'Memulai percakapan baru. Ada yang bisa saya bantu?',
             },
           ]);
+
           setSessionId(data.sessionId);
         } else {
           alert('Gagal memulai chat baru.');
@@ -239,6 +248,7 @@ export default function Chatbot() {
         }}
         className="fixed bottom-6 right-6 z-50 w-14 h-14 bg-[#0a1628] text-white rounded-full shadow-2xl hover:bg-[#0f2040] transition-all duration-200 hover:scale-110 flex items-center justify-center"
         aria-label="Buka chat"
+        type="button"
       >
         <MessageCircle className="w-6 h-6" />
 
@@ -261,13 +271,12 @@ export default function Chatbot() {
         height: 'min(620px, calc(100vh - 120px))',
       }}
     >
-      {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 shrink-0 bg-[#0a1628]">
         <div>
           <h3 className="font-bold text-white text-sm">Chat Support</h3>
           <p className="text-white/40 text-xs">
             {sessionId
-              ? `Session: ${sessionId.slice(0, 8)}...`
+              ? 'Session: ' + sessionId.slice(0, 8) + '...'
               : 'Memulai session...'}
           </p>
         </div>
@@ -302,7 +311,6 @@ export default function Chatbot() {
         </div>
       </div>
 
-      {/* Warning */}
       {showWarning && (
         <div className="bg-amber-50 border-l-4 border-amber-400 p-3 mx-3 mt-2 rounded shrink-0">
           <div className="flex items-start gap-2">
@@ -320,7 +328,6 @@ export default function Chatbot() {
         </div>
       )}
 
-      {/* Messages */}
       <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50 min-h-0">
         {messages.length === 0 && !showWarning && (
           <div className="flex flex-col items-center justify-center h-full text-center text-gray-400 pb-4">
@@ -340,17 +347,18 @@ export default function Chatbot() {
 
         {messages.map((message, index) => (
           <div
-            key={`${message.role}-${index}`}
-            className={`flex ${
-              message.role === 'user' ? 'justify-end' : 'justify-start'
-            }`}
+            key={message.role + '-' + index}
+            className={
+              'flex ' + (message.role === 'user' ? 'justify-end' : 'justify-start')
+            }
           >
             <div
-              className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed whitespace-pre-line ${
-                message.role === 'user'
+              className={
+                'max-w-[85%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed whitespace-pre-line ' +
+                (message.role === 'user'
                   ? 'bg-[#0a1628] text-white rounded-br-sm'
-                  : 'bg-white border border-gray-100 text-gray-700 shadow-sm rounded-bl-sm'
-              }`}
+                  : 'bg-white border border-gray-100 text-gray-700 shadow-sm rounded-bl-sm')
+              }
             >
               {message.role === 'assistant'
                 ? renderMessageWithLinks(message.content)
@@ -367,7 +375,9 @@ export default function Chatbot() {
                   <div
                     key={i}
                     className="w-2 h-2 bg-gray-300 rounded-full animate-bounce"
-                    style={{ animationDelay: `${delay}s` }}
+                    style={{
+                      animationDelay: String(delay) + 's',
+                    }}
                   />
                 ))}
               </div>
@@ -378,7 +388,6 @@ export default function Chatbot() {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input */}
       <form
         onSubmit={sendMessage}
         className="shrink-0 bg-white border-t border-gray-100 p-3"
@@ -407,4 +416,3 @@ export default function Chatbot() {
     </div>
   );
 }
-```
