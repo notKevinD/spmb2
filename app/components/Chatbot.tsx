@@ -1,6 +1,15 @@
+```tsx
 'use client';
-import { useState, useEffect, useRef } from 'react';
-import { MessageCircle, X, Send, Plus, AlertCircle, Minimize2 } from 'lucide-react';
+
+import { useState, useEffect, useRef, type ReactNode } from 'react';
+import {
+  MessageCircle,
+  X,
+  Send,
+  Plus,
+  AlertCircle,
+  Minimize2,
+} from 'lucide-react';
 
 type Message = {
   role: 'user' | 'assistant';
@@ -35,13 +44,13 @@ function cleanUrl(url: string) {
   };
 }
 
-function renderMessageWithLinks(text: string, isUser: boolean) {
+function renderMessageWithLinks(text: string) {
   const combinedRegex =
     /(https?:\/\/[^\s]+|www\.[^\s]+|(\+62|62|0)[0-9][0-9\s-]{7,15}[0-9])/g;
 
-  const elements: React.ReactNode[] = [];
+  const elements: ReactNode[] = [];
   let lastIndex = 0;
-  let match;
+  let match: RegExpExecArray | null;
 
   while ((match = combinedRegex.exec(text)) !== null) {
     const matchedText = match[0];
@@ -55,10 +64,6 @@ function renderMessageWithLinks(text: string, isUser: boolean) {
       matchedText.startsWith('https://') ||
       matchedText.startsWith('www.');
 
-    const linkClass = isUser
-      ? 'underline font-medium text-white'
-      : 'text-blue-600 underline font-medium';
-
     if (isUrl) {
       const { clean, trailing } = cleanUrl(matchedText);
       const href = clean.startsWith('www.') ? `https://${clean}` : clean;
@@ -69,7 +74,7 @@ function renderMessageWithLinks(text: string, isUser: boolean) {
           href={href}
           target="_blank"
           rel="noopener noreferrer"
-          className={linkClass}
+          className="text-blue-600 underline font-medium break-all"
         >
           {clean}
         </a>
@@ -85,7 +90,7 @@ function renderMessageWithLinks(text: string, isUser: boolean) {
           href={formatWhatsAppLink(matchedText)}
           target="_blank"
           rel="noopener noreferrer"
-          className={linkClass}
+          className="text-blue-600 underline font-medium"
         >
           {matchedText}
         </a>
@@ -102,7 +107,6 @@ function renderMessageWithLinks(text: string, isUser: boolean) {
   return elements;
 }
 
-
 export default function Chatbot() {
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
@@ -111,6 +115,7 @@ export default function Chatbot() {
   const [isLoading, setIsLoading] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [showWarning, setShowWarning] = useState(false);
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -129,32 +134,67 @@ export default function Chatbot() {
   useEffect(() => {
     if (isOpen && !sessionId) {
       fetch('/api/chat/session')
-        .then(r => r.json())
-        .then(data => { if (data.success && data.sessionId) setSessionId(data.sessionId); })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.success && data.sessionId) {
+            setSessionId(data.sessionId);
+          }
+        })
         .catch(console.error);
     }
   }, [isOpen, sessionId]);
 
   const sendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
+
     if (!input.trim() || isLoading) return;
+
     const userMessage = input.trim();
+
     setInput('');
-    setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
+    setMessages((prev) => [
+      ...prev,
+      { role: 'user', content: userMessage },
+    ]);
     setIsLoading(true);
+
     try {
       const res = await fetch('/api/chat', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: userMessage, sessionId }),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: userMessage,
+          sessionId,
+        }),
       });
+
       const data = await res.json();
-      if (data.success) {
-        setMessages(prev => [...prev, { role: 'assistant', content: data.response }]);
-        if (data.sessionId && !sessionId) setSessionId(data.sessionId);
-      } else throw new Error(data.error);
+
+      if (!data.success) {
+        throw new Error(data.error || 'Chat request failed');
+      }
+
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: 'assistant',
+          content: data.response || 'Maaf, tidak ada respons dari sistem.',
+        },
+      ]);
+
+      if (data.sessionId && !sessionId) {
+        setSessionId(data.sessionId);
+      }
     } catch {
-      setMessages(prev => [...prev, { role: 'assistant', content: 'Maaf, terjadi kesalahan. Silakan coba lagi.' }]);
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: 'assistant',
+          content: 'Maaf, terjadi kesalahan. Silakan coba lagi.',
+        },
+      ]);
     } finally {
       setIsLoading(false);
     }
@@ -162,31 +202,46 @@ export default function Chatbot() {
 
   const startNewChat = async () => {
     setShowWarning(true);
+
     setTimeout(async () => {
       try {
-        const res = await fetch('/api/chat/new-session', { method: 'POST' });
+        const res = await fetch('/api/chat/new-session', {
+          method: 'POST',
+        });
+
         const data = await res.json();
+
         if (data.success) {
-          setMessages([{ role: 'assistant', content: 'Memulai percakapan baru! Ada yang bisa saya bantu?' }]);
+          setMessages([
+            {
+              role: 'assistant',
+              content: 'Memulai percakapan baru. Ada yang bisa saya bantu?',
+            },
+          ]);
           setSessionId(data.sessionId);
-          setShowWarning(false);
+        } else {
+          alert('Gagal memulai chat baru.');
         }
       } catch {
         alert('Gagal memulai chat baru.');
+      } finally {
         setShowWarning(false);
       }
     }, 2000);
   };
 
-  // Floating button (chat tutup / minimize)
   if (!isOpen || isMinimized) {
     return (
       <button
-        onClick={() => { setIsOpen(true); setIsMinimized(false); }}
+        onClick={() => {
+          setIsOpen(true);
+          setIsMinimized(false);
+        }}
         className="fixed bottom-6 right-6 z-50 w-14 h-14 bg-[#0a1628] text-white rounded-full shadow-2xl hover:bg-[#0f2040] transition-all duration-200 hover:scale-110 flex items-center justify-center"
         aria-label="Buka chat"
       >
         <MessageCircle className="w-6 h-6" />
+
         {isMinimized && messages.length > 0 && (
           <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
             {messages.length}
@@ -211,17 +266,37 @@ export default function Chatbot() {
         <div>
           <h3 className="font-bold text-white text-sm">Chat Support</h3>
           <p className="text-white/40 text-xs">
-            {sessionId ? `Session: ${sessionId.slice(0, 8)}...` : 'Memulai session...'}
+            {sessionId
+              ? `Session: ${sessionId.slice(0, 8)}...`
+              : 'Memulai session...'}
           </p>
         </div>
+
         <div className="flex items-center gap-1">
-          <button onClick={startNewChat} className="p-2 text-white/60 hover:text-white hover:bg-white/10 rounded-lg transition-colors" title="Chat baru">
+          <button
+            onClick={startNewChat}
+            className="p-2 text-white/60 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+            title="Chat baru"
+            type="button"
+          >
             <Plus className="w-4 h-4" />
           </button>
-          <button onClick={() => setIsMinimized(true)} className="p-2 text-white/60 hover:text-white hover:bg-white/10 rounded-lg transition-colors" title="Minimize">
+
+          <button
+            onClick={() => setIsMinimized(true)}
+            className="p-2 text-white/60 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+            title="Minimize"
+            type="button"
+          >
             <Minimize2 className="w-4 h-4" />
           </button>
-          <button onClick={() => setIsOpen(false)} className="p-2 text-white/60 hover:text-white hover:bg-white/10 rounded-lg transition-colors" title="Tutup">
+
+          <button
+            onClick={() => setIsOpen(false)}
+            className="p-2 text-white/60 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+            title="Tutup"
+            type="button"
+          >
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -232,9 +307,13 @@ export default function Chatbot() {
         <div className="bg-amber-50 border-l-4 border-amber-400 p-3 mx-3 mt-2 rounded shrink-0">
           <div className="flex items-start gap-2">
             <AlertCircle className="w-4 h-4 text-amber-600 mt-0.5 shrink-0" />
+
             <div className="text-xs text-amber-800">
               <p className="font-semibold">Peringatan!</p>
-              <p>History chat sebelumnya tidak akan bisa dilihat lagi setelah membuat chat baru.</p>
+              <p>
+                History chat sebelumnya tidak akan bisa dilihat lagi setelah
+                membuat chat baru.
+              </p>
               <p className="text-amber-600 mt-1">Membuat session baru...</p>
             </div>
           </div>
@@ -248,30 +327,48 @@ export default function Chatbot() {
             <div className="w-14 h-14 rounded-full bg-gray-100 flex items-center justify-center mb-4">
               <MessageCircle className="w-7 h-7 text-gray-300" />
             </div>
-            <p className="text-[#0a1628] font-semibold text-sm">Halo! </p>
-            <p className="text-xs mt-1 text-gray-400">Ada yang bisa saya bantu?</p>
-            <p className="text-xs text-gray-300 mt-3">Informasi PMB, Program Studi, atau Beasiswa</p>
+
+            <p className="text-[#0a1628] font-semibold text-sm">Halo!</p>
+            <p className="text-xs mt-1 text-gray-400">
+              Ada yang bisa saya bantu?
+            </p>
+            <p className="text-xs text-gray-300 mt-3">
+              Informasi PMB, Program Studi, atau Beasiswa
+            </p>
           </div>
         )}
 
         {messages.map((message, index) => (
-  <div key={index} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-    <div className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed whitespace-pre-line ${
-      message.role === 'user'
-        ? 'bg-[#0a1628] text-white rounded-br-sm'
-        : 'bg-white border border-gray-100 text-gray-700 shadow-sm rounded-bl-sm'
-    }`}>
-      {renderMessageWithLinks(message.content, message.role === 'user')}
-    </div>
-  </div>
-))}
+          <div
+            key={`${message.role}-${index}`}
+            className={`flex ${
+              message.role === 'user' ? 'justify-end' : 'justify-start'
+            }`}
+          >
+            <div
+              className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed whitespace-pre-line ${
+                message.role === 'user'
+                  ? 'bg-[#0a1628] text-white rounded-br-sm'
+                  : 'bg-white border border-gray-100 text-gray-700 shadow-sm rounded-bl-sm'
+              }`}
+            >
+              {message.role === 'assistant'
+                ? renderMessageWithLinks(message.content)
+                : message.content}
+            </div>
+          </div>
+        ))}
 
         {isLoading && (
           <div className="flex justify-start">
             <div className="bg-white border border-gray-100 rounded-2xl rounded-bl-sm px-4 py-3 shadow-sm">
               <div className="flex gap-1.5">
                 {[0, 0.15, 0.3].map((delay, i) => (
-                  <div key={i} className="w-2 h-2 bg-gray-300 rounded-full animate-bounce" style={{ animationDelay: `${delay}s` }} />
+                  <div
+                    key={i}
+                    className="w-2 h-2 bg-gray-300 rounded-full animate-bounce"
+                    style={{ animationDelay: `${delay}s` }}
+                  />
                 ))}
               </div>
             </div>
@@ -282,7 +379,10 @@ export default function Chatbot() {
       </div>
 
       {/* Input */}
-      <form onSubmit={sendMessage} className="shrink-0 bg-white border-t border-gray-100 p-3">
+      <form
+        onSubmit={sendMessage}
+        className="shrink-0 bg-white border-t border-gray-100 p-3"
+      >
         <div className="flex gap-2 items-center">
           <input
             ref={inputRef}
@@ -293,10 +393,12 @@ export default function Chatbot() {
             disabled={isLoading || showWarning}
             className="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#0a1628]/20 focus:border-[#0a1628] transition-all placeholder:text-gray-300 disabled:opacity-50"
           />
+
           <button
             type="submit"
             disabled={isLoading || !input.trim() || showWarning}
             className="w-10 h-10 bg-[#0a1628] text-white rounded-xl flex items-center justify-center hover:bg-[#0f2040] disabled:bg-gray-200 disabled:cursor-not-allowed transition-all shrink-0"
+            aria-label="Kirim pesan"
           >
             <Send className="w-4 h-4" />
           </button>
@@ -305,3 +407,4 @@ export default function Chatbot() {
     </div>
   );
 }
+```
