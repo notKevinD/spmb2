@@ -8,6 +8,7 @@ import {
   Plus,
   AlertCircle,
   Minimize2,
+  Download,
 } from 'lucide-react';
 
 type Message = {
@@ -156,6 +157,7 @@ export default function Chatbot() {
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const sessionInitializedRef = useRef(false);
 
   useEffect(() => {
     if (isOpen && messagesEndRef.current) {
@@ -170,22 +172,28 @@ export default function Chatbot() {
   }, [isOpen, isMinimized]);
 
   useEffect(() => {
-    if (isOpen && !sessionId) {
-      fetch('/api/chat/session')
-        .then((response) => response.json())
-        .then((data) => {
-          if (data.success && data.sessionId) {
-            setSessionId(data.sessionId);
-          }
-        })
-        .catch(console.error);
-    }
-  }, [isOpen, sessionId]);
+    if (sessionInitializedRef.current) return;
+    sessionInitializedRef.current = true;
+
+    fetch('/api/chat/new-session', {
+      method: 'POST',
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.success && data.sessionId) {
+          setSessionId(data.sessionId);
+        }
+      })
+      .catch((error) => {
+        console.error('Gagal membuat session baru:', error);
+        sessionInitializedRef.current = false;
+      });
+  }, []);
 
   const sendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!input.trim() || isLoading) return;
+    if (!input.trim() || isLoading || !sessionId) return;
 
     const userMessage = input.trim();
 
@@ -273,6 +281,45 @@ export default function Chatbot() {
     }, 2000);
   };
 
+  const downloadChatHistory = () => {
+    if (messages.length === 0) return;
+
+    const downloadedAt = new Intl.DateTimeFormat('id-ID', {
+      dateStyle: 'full',
+      timeStyle: 'medium',
+      timeZone: 'Asia/Jakarta',
+    }).format(new Date());
+    const conversation = messages
+      .map((message, index) => {
+        const sender = message.role === 'user' ? 'Pengguna' : 'Chatbot';
+        const content = message.content.replace(/\*\*([\s\S]*?)\*\*/g, '$1');
+
+        return `${index + 1}. ${sender}\n${content}`;
+      })
+      .join('\n\n');
+    const fileContent = [
+      'RIWAYAT PERCAKAPAN PMB UBL',
+      `Waktu unduh: ${downloadedAt} WIB`,
+      `Session ID: ${sessionId || '-'}`,
+      '',
+      conversation,
+    ].join('\n');
+    const blob = new Blob(['\uFEFF', fileContent], {
+      type: 'text/plain;charset=utf-8',
+    });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    const date = new Date().toISOString().slice(0, 10);
+    const shortSession = sessionId?.slice(0, 8) || 'tanpa-session';
+
+    link.href = url;
+    link.download = `riwayat-chat-ubl-${date}-${shortSession}.txt`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+  };
+
   if (!isOpen || isMinimized) {
     return (
       <button
@@ -316,6 +363,21 @@ export default function Chatbot() {
         </div>
 
         <div className="flex items-center gap-1">
+          <button
+            onClick={downloadChatHistory}
+            disabled={messages.length === 0 || isLoading}
+            className="p-2 text-white/60 hover:text-white hover:bg-white/10 rounded-lg transition-colors disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent"
+            title={
+              messages.length === 0
+                ? 'Belum ada percakapan untuk diunduh'
+                : 'Unduh riwayat percakapan'
+            }
+            aria-label="Unduh riwayat percakapan"
+            type="button"
+          >
+            <Download className="w-4 h-4" />
+          </button>
+
           <button
             onClick={startNewChat}
             className="p-2 text-white/60 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
@@ -433,12 +495,13 @@ export default function Chatbot() {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="Ketik pesan..."
+            disabled={isLoading || showWarning || !sessionId}
             className="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#0a1628]/20 focus:border-[#0a1628] transition-all placeholder:text-gray-300 disabled:opacity-50"
           />
 
           <button
             type="submit"
-            disabled={isLoading || !input.trim() || showWarning}
+            disabled={isLoading || !input.trim() || showWarning || !sessionId}
             className="w-10 h-10 bg-[#0a1628] text-white rounded-xl flex items-center justify-center hover:bg-[#0f2040] disabled:bg-gray-200 disabled:cursor-not-allowed transition-all shrink-0"
             aria-label="Kirim pesan"
           >
