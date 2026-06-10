@@ -46,7 +46,7 @@ function cleanUrl(url: string) {
   };
 }
 
-function renderMessageWithLinks(text: string) {
+function renderMessageWithLinks(text: string, keyPrefix = 'message') {
   const combinedRegex =
     /(https?:\/\/[^\s]+|www\.[^\s]+|(\+62|62|0)[0-9][0-9\s-]{7,15}[0-9])/g;
 
@@ -74,7 +74,7 @@ function renderMessageWithLinks(text: string) {
 
       elements.push(
         <a
-          key={'url-' + match.index}
+          key={`${keyPrefix}-url-${match.index}`}
           href={href}
           target="_blank"
           rel="noopener noreferrer"
@@ -90,7 +90,7 @@ function renderMessageWithLinks(text: string) {
     } else {
       elements.push(
         <a
-          key={'phone-' + match.index}
+          key={`${keyPrefix}-phone-${match.index}`}
           href={formatWhatsAppLink(matchedText)}
           target="_blank"
           rel="noopener noreferrer"
@@ -106,6 +106,40 @@ function renderMessageWithLinks(text: string) {
 
   if (lastIndex < text.length) {
     elements.push(text.slice(lastIndex));
+  }
+
+  return elements;
+}
+
+function renderAssistantMessage(text: string) {
+  const boldRegex = /\*\*([\s\S]+?)\*\*/g;
+  const elements: ReactNode[] = [];
+  let lastIndex = 0;
+  let match: RegExpExecArray | null;
+
+  while ((match = boldRegex.exec(text)) !== null) {
+    if (match.index > lastIndex) {
+      elements.push(
+        ...renderMessageWithLinks(
+          text.slice(lastIndex, match.index),
+          `plain-${lastIndex}`
+        )
+      );
+    }
+
+    elements.push(
+      <strong key={`bold-${match.index}`} className="font-semibold text-gray-900">
+        {renderMessageWithLinks(match[1], `bold-${match.index}`)}
+      </strong>
+    );
+
+    lastIndex = match.index + match[0].length;
+  }
+
+  if (lastIndex < text.length) {
+    elements.push(
+      ...renderMessageWithLinks(text.slice(lastIndex), `plain-${lastIndex}`)
+    );
   }
 
   return elements;
@@ -361,7 +395,7 @@ export default function Chatbot() {
               }
             >
               {message.role === 'assistant'
-                ? renderMessageWithLinks(message.content)
+                ? renderAssistantMessage(message.content)
                 : message.content}
             </div>
           </div>
