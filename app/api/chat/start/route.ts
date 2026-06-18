@@ -22,6 +22,20 @@ function normalizePhone(phone: string) {
   return number;
 }
 
+async function readN8nJson(response: Response) {
+  const text = await response.text();
+
+  if (!text.trim()) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(text);
+  } catch {
+    throw new Error('Response n8n bukan JSON valid.');
+  }
+}
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
@@ -62,30 +76,59 @@ export async function POST(req: NextRequest) {
 
     const n8nWebhookUrl = process.env.N8N_WEBHOOK_URL;
 
-    if (n8nWebhookUrl) {
-      try {
-        await fetch(n8nWebhookUrl, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Accept: 'application/json, text/plain, */*',
-          },
-          body: JSON.stringify({
-            eventType: 'lead_registered',
-            sessionId,
-            visitor,
-            timestamp: new Date().toISOString(),
-          }),
-        });
-      } catch (error) {
-        console.error('Failed to send lead data to n8n:', error);
-      }
+    if (!n8nWebhookUrl) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'N8N_WEBHOOK_URL belum dikonfigurasi.',
+        },
+        { status: 500 }
+      );
+    }
+
+    const n8nResponse = await fetch(n8nWebhookUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+      body: JSON.stringify({
+        eventType: 'lead_registered',
+        sessionId,
+        visitor,
+        timestamp: new Date().toISOString(),
+      }),
+    });
+
+    if (!n8nResponse.ok) {
+      console.error('N8N start session error:', n8nResponse.status);
+
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Gagal membuat session di server.',
+        },
+        { status: 500 }
+      );
+    }
+
+    const n8nData = await readN8nJson(n8nResponse);
+
+    if (!n8nData?.success) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: n8nData?.error || 'Session gagal dibuat di n8n.',
+        },
+        { status: 500 }
+      );
     }
 
     const response = NextResponse.json({
       success: true,
       sessionId,
       visitor,
+      message: 'Session berhasil dibuat.',
     });
 
     response.cookies.set('chat_session_id', sessionId, {
@@ -103,7 +146,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       {
         success: false,
-        error: 'Failed to start chat session',
+        error:
+          error instanceof Error
+            ? error.message
+            : 'Failed to start chat session',
       },
       { status: 500 }
     );
