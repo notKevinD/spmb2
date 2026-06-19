@@ -508,8 +508,6 @@ export default function Chatbot() {
       <div className="fixed bottom-6 right-6 z-50 flex items-end gap-3">
         <div className="relative max-w-[190px] rounded-[26px] border border-sky-100 bg-white px-4 py-3 text-right shadow-xl shadow-sky-900/12">
           <span className="absolute -right-1 bottom-5 h-4 w-4 rotate-45 border-r border-t border-sky-100 bg-white" />
-          <span className="absolute -top-1 left-5 h-3 w-3 rounded-full bg-white shadow-sm" />
-          <span className="absolute -top-2 left-10 h-4 w-4 rounded-full bg-white shadow-sm" />
           <p className="relative text-[11px] font-bold uppercase tracking-normal text-[#087ee7]">
             Fitur Baru
           </p>

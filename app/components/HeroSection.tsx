@@ -4,10 +4,6 @@ export default function HeroSection() {
   return (
     <section id="beranda" className="relative overflow-hidden bg-[#dff2ff]">
       <div aria-hidden="true" className="pointer-events-none absolute inset-0">
-        <div className="hero-cloud hero-cloud-large left-[4%] top-[13%] hidden sm:block" />
-        <div className="hero-cloud hero-cloud-small right-[8%] top-[16%] hidden sm:block" />
-        <div className="hero-cloud hero-cloud-medium left-[42%] top-[8%] hidden md:block" />
-        <div className="hero-cloud hero-cloud-wide bottom-[10%] right-[30%] hidden lg:block" />
         <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-white/24 to-transparent" />
       </div>
 
