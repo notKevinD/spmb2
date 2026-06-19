@@ -562,9 +562,6 @@ export default function Chatbot() {
               <h3 className="truncate text-sm font-extrabold text-white">
                 Chat Support PMB UBL
               </h3>
-              <span className="rounded-full bg-[#ff9b05] px-2 py-0.5 text-[10px] font-extrabold text-white">
-                LIVE
-              </span>
             </div>
             <p className="truncate text-xs font-medium text-white/70">
               {visitor
