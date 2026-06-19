@@ -1,117 +1,102 @@
-import { ChevronRight, Star } from 'lucide-react';
+import { BarChart3, Cpu, Globe2, GraduationCap, Scale, Wrench } from 'lucide-react';
 
-const programs = {
-  'Fakultas Ekonomi & Bisnis': {
-    color: 'from-blue-500 to-blue-600',
+const programs = [
+  {
+    faculty: 'Fakultas Ekonomi & Bisnis',
+    icon: BarChart3,
+    color: 'from-[#08c5a4] to-[#05af94]',
     courses: [
       { name: 'Manajemen', accreditation: 'Unggul & Internasional' },
       { name: 'Akuntansi', accreditation: 'Unggul' },
     ],
   },
-  'Fakultas Ilmu Komputer': {
-    color: 'from-violet-500 to-violet-600',
+  {
+    faculty: 'Fakultas Ilmu Komputer',
+    icon: Cpu,
+    color: 'from-[#bd4ef1] to-[#e035ac]',
     courses: [
       { name: 'Sistem Informasi', accreditation: 'Baik Sekali' },
       { name: 'Informatika', accreditation: 'Unggul' },
     ],
   },
-  'Fakultas Teknik': {
-    color: 'from-orange-500 to-orange-600',
+  {
+    faculty: 'Fakultas Teknik',
+    icon: Wrench,
+    color: 'from-[#ff7b14] to-[#ff3c26]',
     courses: [
       { name: 'Teknik Sipil', accreditation: 'Unggul' },
       { name: 'Arsitektur', accreditation: 'Baik Sekali' },
       { name: 'Teknik Mesin', accreditation: 'Unggul' },
     ],
   },
-  'Fakultas Ilmu Sosial & Politik': {
-    color: 'from-teal-500 to-teal-600',
+  {
+    faculty: 'Fakultas Ilmu Sosial & Politik',
+    icon: Globe2,
+    color: 'from-[#4f80ff] to-[#6a58ff]',
     courses: [
       { name: 'Administrasi Publik', accreditation: 'Unggul' },
       { name: 'Administrasi Bisnis', accreditation: 'Baik Sekali' },
       { name: 'Ilmu Komunikasi', accreditation: 'Unggul' },
     ],
   },
-  'Fakultas Hukum': {
-    color: 'from-red-500 to-red-600',
-    courses: [
-      { name: 'Ilmu Hukum', accreditation: 'A' },
-    ],
+  {
+    faculty: 'Fakultas Hukum',
+    icon: Scale,
+    color: 'from-[#64748b] to-[#475569]',
+    courses: [{ name: 'Ilmu Hukum', accreditation: 'A' }],
   },
-  'Fak. Keguruan & Ilmu Pendidikan': {
-    color: 'from-pink-500 to-pink-600',
-    courses: [
-      { name: 'Pendidikan Bahasa Inggris', accreditation: 'Unggul' },
-    ],
+  {
+    faculty: 'Fakultas Keguruan & Ilmu Pendidikan',
+    icon: GraduationCap,
+    color: 'from-[#12a9ec] to-[#0786e8]',
+    courses: [{ name: 'Pendidikan Bahasa Inggris', accreditation: 'Unggul' }],
   },
-};
+];
 
-const accreditationColor = (acc: string) => {
-  if (acc.includes('Unggul') || acc === 'A') return 'bg-emerald-50 text-emerald-700 border border-emerald-200';
-  return 'bg-blue-50 text-blue-700 border border-blue-200';
-};
+function badgeClass(accreditation: string) {
+  return accreditation === 'Baik Sekali'
+    ? 'bg-blue-100 text-[#087ee7]'
+    : 'bg-emerald-100 text-emerald-700';
+}
 
 export default function StudyPrograms() {
   return (
-    <section className="py-24 bg-[#f8f9fc]">
-      <div className="max-w-7xl mx-auto px-6">
-        {/* Header */}
-        <div className="max-w-2xl mb-16">
-          <p className="text-[#e8b84b] font-bold text-sm uppercase tracking-widest mb-3">Program Akademik</p>
-          <h2 className="text-4xl lg:text-5xl font-black text-[#0a1628] leading-tight mb-4">
-            Program Studi<br />Unggulan UBL
+    <section id="program" className="bg-white py-24">
+      <div className="mx-auto max-w-[1232px] px-6">
+        <div className="mx-auto mb-16 max-w-[720px] text-center">
+          <h2 className="text-4xl font-extrabold leading-tight text-[#11192d]">
+            Program Studi <span className="text-[#087ee7]">Unggulan</span>
           </h2>
-          <p className="text-gray-500 text-lg">
-            Beragam pilihan program studi dari enam fakultas dengan akreditasi terbaik untuk mendukung masa depan Anda.
+          <p className="mt-5 text-lg leading-8 text-[#334766]">
+            Beragam pilihan program studi dari berbagai fakultas dengan akreditasi terbaik untuk mendukung masa depan Anda.
           </p>
         </div>
 
-        {/* Cards Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {Object.entries(programs).map(([faculty, { color, courses }]) => (
-            <div
+        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+          {programs.map(({ faculty, icon: Icon, color, courses }) => (
+            <article
               key={faculty}
-              className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group"
+              className="min-h-[268px] rounded-xl bg-white p-6 shadow-xl shadow-slate-900/8 ring-1 ring-slate-100"
             >
-              {/* Card header */}
-              <div className={`bg-gradient-to-r ${color} p-5`}>
-                <h3 className="text-white font-bold text-base leading-snug">{faculty}</h3>
-                <p className="text-white/70 text-xs mt-1">{courses.length} Program Studi</p>
+              <div className="flex items-center gap-4">
+                <span className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br ${color}`}>
+                  <Icon className="h-6 w-6 text-white" />
+                </span>
+                <h3 className="text-xl font-extrabold leading-snug text-[#11192d]">{faculty}</h3>
               </div>
 
-              {/* Courses */}
-              <div className="p-5 space-y-3">
+              <div className="mt-10 divide-y divide-slate-100">
                 {courses.map((course) => (
-                  <div
-                    key={course.name}
-                    className="flex items-center justify-between py-2 border-b border-gray-50 last:border-0"
-                  >
-                    <div className="flex items-center gap-2.5">
-                      <ChevronRight className="w-3.5 h-3.5 text-gray-300" />
-                      <span className="text-[#0a1628] font-medium text-sm">{course.name}</span>
-                    </div>
-                    <span className={`text-xs px-2.5 py-1 rounded-full font-semibold ${accreditationColor(course.accreditation)}`}>
+                  <div key={course.name} className="flex items-center justify-between gap-4 py-3 first:pt-0 last:pb-0">
+                    <p className="font-semibold text-[#334766]">{course.name}</p>
+                    <span className={`shrink-0 rounded-full px-3 py-1 text-xs font-medium ${badgeClass(course.accreditation)}`}>
                       {course.accreditation}
                     </span>
                   </div>
                 ))}
               </div>
-
-              {/* Footer */}
-              <div className="px-5 pb-5">
-                <button className="w-full text-center text-sm font-semibold text-gray-400 group-hover:text-[#0a1628] transition-colors py-2 border border-gray-100 group-hover:border-gray-300 rounded-xl">
-                  Lihat Detail →
-                </button>
-              </div>
-            </div>
+            </article>
           ))}
-        </div>
-
-        {/* Bottom CTA */}
-        <div className="mt-12 text-center">
-          <div className="inline-flex items-center gap-2 bg-white border border-gray-200 rounded-full px-6 py-3 shadow-sm">
-            <Star className="w-4 h-4 text-[#e8b84b] fill-[#e8b84b]" />
-            <span className="text-gray-600 text-sm font-medium">Semua program terakreditasi oleh BAN-PT</span>
-          </div>
         </div>
       </div>
     </section>

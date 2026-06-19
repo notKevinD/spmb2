@@ -1,89 +1,63 @@
-import { BadgeCheck, Users, Trophy } from 'lucide-react';
+import { BookOpen, CheckCircle2, Trophy, Users } from 'lucide-react';
 
 const advantages = [
   {
-    icon: BadgeCheck,
+    icon: BookOpen,
     title: 'Program Studi Berkualitas',
     description:
-      'Lebih dari 10 program studi terakreditasi dengan kurikulum yang relevan dengan kebutuhan industri masa kini.',
-    features: ['Akreditasi Unggul BAN-PT', 'Kurikulum Industri Terkini', 'Sertifikasi Profesi'],
-    color: 'from-blue-500 to-blue-600',
-    accent: 'bg-blue-50 text-blue-600',
+      'Lebih dari 10 program studi terakreditasi dengan kurikulum yang relevan dengan kebutuhan industri.',
+    features: ['Akreditasi Unggul', 'Kurikulum Updated', 'Sertifikasi Profesi'],
   },
   {
     icon: Users,
     title: 'Dosen Berpengalaman',
     description:
-      'Dosen-dosen profesional dengan latar belakang akademik dan pengalaman industri yang mumpuni dan terverifikasi.',
+      'Dosen-dosen profesional dengan latar belakang akademik dan pengalaman industri yang mumpuni.',
     features: ['Profesional Berpengalaman', 'Pendampingan Intensif', 'Jaringan Industri Luas'],
-    color: 'from-[#e8b84b] to-[#d4a030]',
-    accent: 'bg-amber-50 text-amber-700',
   },
   {
     icon: Trophy,
     title: 'Prestasi Membanggakan',
     description:
-      'Mahasiswa UBL konsisten meraih prestasi di tingkat nasional dan internasional setiap tahunnya.',
-    features: ['Juara Kompetisi Nasional', 'Penelitian Inovatif', 'Pengabdian Masyarakat'],
-    color: 'from-emerald-500 to-emerald-600',
-    accent: 'bg-emerald-50 text-emerald-600',
+      'Mahasiswa UBL konsisten meraih prestasi di tingkat nasional dan internasional.',
+    features: ['Juara Kompetisi', 'Penelitian Inovatif', 'Pengabdian Masyarakat'],
   },
 ];
 
 export default function Advantages() {
   return (
-    <section className="py-24 bg-white">
-      <div className="max-w-7xl mx-auto px-6">
-        {/* Header */}
-        <div className="text-center max-w-2xl mx-auto mb-16">
-          <p className="text-[#e8b84b] font-bold text-sm uppercase tracking-widest mb-3">Mengapa UBL?</p>
-          <h2 className="text-4xl lg:text-5xl font-black text-[#0a1628] leading-tight mb-4">
-            Keunggulan Universitas<br />Bandar Lampung
+    <section className="bg-[#f4f7fc] py-24">
+      <div className="mx-auto max-w-[1232px] px-6">
+        <div className="mx-auto mb-16 max-w-[760px] text-center">
+          <h2 className="text-4xl font-extrabold leading-tight text-[#11192d]">
+            Keunggulan <span className="text-[#087ee7]">Universitas Bandar Lampung</span>
           </h2>
-          <p className="text-gray-500 text-lg">
-            Komitmen kami dalam memberikan pendidikan terbaik didukung fasilitas modern dan lingkungan belajar yang inspiratif.
+          <p className="mt-5 text-lg leading-8 text-[#4a5d78]">
+            Komitmen kami dalam memberikan pendidikan terbaik didukung oleh fasilitas modern dan lingkungan belajar yang inspiratif.
           </p>
         </div>
 
-        {/* Cards */}
-        <div className="grid md:grid-cols-3 gap-8">
-          {advantages.map((item, index) => (
-            <div
-              key={item.title}
-              className="group relative bg-white rounded-3xl border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-500 hover:-translate-y-2 overflow-hidden"
-            >
-              {/* Top gradient strip */}
-              <div className={`h-1.5 bg-gradient-to-r ${item.color} rounded-t-3xl`} />
-
-              <div className="p-8">
-                {/* Icon */}
-                <div className={`inline-flex w-14 h-14 rounded-2xl bg-gradient-to-br ${item.color} items-center justify-center mb-6 shadow-lg`}>
-                  <item.icon className="w-7 h-7 text-white" />
-                </div>
-
-                <h3 className="text-[#0a1628] font-black text-xl mb-3">{item.title}</h3>
-                <p className="text-gray-500 text-sm leading-relaxed mb-6">{item.description}</p>
-
-                {/* Features */}
-                <div className="space-y-2.5">
-                  {item.features.map((feature) => (
-                    <div key={feature} className="flex items-center gap-2.5">
-                      <div className={`w-6 h-6 rounded-full ${item.accent} flex items-center justify-center flex-shrink-0`}>
-                        <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                        </svg>
-                      </div>
-                      <span className="text-gray-700 text-sm font-medium">{feature}</span>
-                    </div>
-                  ))}
-                </div>
+        <div className="grid gap-8 md:grid-cols-3">
+          {advantages.map(({ icon: Icon, title, description, features }) => (
+            <article key={title} className="rounded-xl bg-white p-6 shadow-xl shadow-slate-900/8 ring-1 ring-slate-100">
+              <div className="mb-8 flex items-center gap-4">
+                <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-[#1591fb] to-[#04add4]">
+                  <Icon className="h-6 w-6 text-white" />
+                </span>
+                <h3 className="text-xl font-extrabold text-[#11192d]">{title}</h3>
               </div>
 
-              {/* Number watermark */}
-              <div className="absolute bottom-4 right-6 text-7xl font-black text-gray-50 leading-none select-none">
-                {index + 1}
+              <p className="min-h-[96px] text-base leading-7 text-[#4a5d78]">{description}</p>
+
+              <div className="mt-6 space-y-4">
+                {features.map((feature) => (
+                  <div key={feature} className="flex items-center gap-3 text-sm font-medium text-[#334766]">
+                    <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+                    {feature}
+                  </div>
+                ))}
               </div>
-            </div>
+            </article>
           ))}
         </div>
       </div>
