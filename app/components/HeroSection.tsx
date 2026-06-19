@@ -2,8 +2,16 @@ import { ArrowRight, GraduationCap, Star } from 'lucide-react';
 
 export default function HeroSection() {
   return (
-    <section id="beranda" className="bg-[#dff2ff]">
-      <div className="mx-auto grid min-h-[calc(100vh-78px)] max-w-[1232px] items-center gap-14 px-6 py-24 lg:grid-cols-[1fr_0.92fr]">
+    <section id="beranda" className="relative overflow-hidden bg-[#dff2ff]">
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0">
+        <div className="hero-cloud hero-cloud-large left-[4%] top-[13%] hidden sm:block" />
+        <div className="hero-cloud hero-cloud-small right-[8%] top-[16%] hidden sm:block" />
+        <div className="hero-cloud hero-cloud-medium left-[42%] top-[8%] hidden md:block" />
+        <div className="hero-cloud hero-cloud-wide bottom-[10%] right-[30%] hidden lg:block" />
+        <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-white/24 to-transparent" />
+      </div>
+
+      <div className="relative z-10 mx-auto grid min-h-[calc(100vh-78px)] max-w-[1232px] items-center gap-14 px-6 py-24 lg:grid-cols-[1fr_0.92fr]">
         <div>
           <div className="mb-10 inline-flex items-center gap-2 rounded-full bg-white px-4 py-3 text-sm font-bold text-slate-700 shadow-md shadow-sky-900/10">
             <span className="h-2 w-2 rounded-full bg-emerald-400" />

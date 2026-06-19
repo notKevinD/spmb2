@@ -1,0 +1,339 @@
+- generic [active] [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e3]:
+      - link "UBL - Admissions Student Portal" [ref=e4] [cursor=pointer]:
+        - /url: "#beranda"
+        - img [ref=e6]
+        - generic [ref=e9]:
+          - generic [ref=e10]: UBL - Admissions
+          - generic [ref=e11]: Student Portal
+      - generic [ref=e12]:
+        - link "Beranda" [ref=e13] [cursor=pointer]:
+          - /url: "#beranda"
+        - link "Program" [ref=e14] [cursor=pointer]:
+          - /url: "#program"
+        - link "Kelas Profesional" [ref=e15] [cursor=pointer]:
+          - /url: "#kelas-profesional"
+        - link "Beasiswa" [ref=e16] [cursor=pointer]:
+          - /url: "#beasiswa"
+        - link "Kontak" [ref=e17] [cursor=pointer]:
+          - /url: "#kontak"
+      - generic [ref=e18]:
+        - link "Masuk" [ref=e19] [cursor=pointer]:
+          - /url: "#kontak"
+        - link "Daftar Sekarang" [ref=e20] [cursor=pointer]:
+          - /url: "#kontak"
+  - main [ref=e21]:
+    - generic [ref=e23]:
+      - generic [ref=e24]:
+        - generic [ref=e25]: Pendaftaran Madani 2 Dibuka
+        - heading "Penerimaan Mahasiswa Baru" [level=1] [ref=e27]:
+          - text: Penerimaan
+          - generic [ref=e28]: Mahasiswa Baru
+        - paragraph [ref=e29]: Bergabunglah dengan komunitas akademik yang unggul dan inovatif di Universitas Bandar Lampung. Wujudkan impian karir Anda melalui pendidikan berkualitas dengan fasilitas terbaik.
+        - link "Daftar Sekarang" [ref=e30] [cursor=pointer]:
+          - /url: "#kontak"
+          - text: Daftar Sekarang
+          - img [ref=e31]
+        - generic [ref=e33]:
+          - generic [ref=e34]:
+            - paragraph [ref=e35]: 10+
+            - paragraph [ref=e36]: Program Studi
+          - generic [ref=e38]:
+            - paragraph [ref=e39]: 5K+
+            - paragraph [ref=e40]: Mahasiswa
+      - generic [ref=e41]:
+        - img [ref=e43]
+        - heading "PMB 2026/2027" [level=2] [ref=e46]
+        - paragraph [ref=e47]: Pendaftaran Telah Dibuka
+        - generic [ref=e48]:
+          - paragraph [ref=e49]: Madani 2
+          - paragraph [ref=e50]: April 2026 - Juni 2026
+        - generic [ref=e51]:
+          - generic [ref=e52]:
+            - img [ref=e53]
+            - img [ref=e55]
+            - img [ref=e57]
+            - img [ref=e59]
+            - img [ref=e61]
+          - generic [ref=e63]: Terakreditasi Unggul
+    - generic [ref=e65]:
+      - generic [ref=e66]:
+        - heading "Program Studi Unggulan" [level=2] [ref=e67]
+        - paragraph [ref=e68]: Beragam pilihan program studi dari berbagai fakultas dengan akreditasi terbaik untuk mendukung masa depan Anda.
+      - generic [ref=e69]:
+        - article [ref=e70]:
+          - generic [ref=e71]:
+            - img [ref=e73]
+            - heading "Fakultas Ekonomi & Bisnis" [level=3] [ref=e75]
+          - generic [ref=e76]:
+            - generic [ref=e77]:
+              - paragraph [ref=e78]: Manajemen
+              - generic [ref=e79]: Unggul & Internasional
+            - generic [ref=e80]:
+              - paragraph [ref=e81]: Akuntansi
+              - generic [ref=e82]: Unggul
+        - article [ref=e83]:
+          - generic [ref=e84]:
+            - img [ref=e86]
+            - heading "Fakultas Ilmu Komputer" [level=3] [ref=e89]
+          - generic [ref=e90]:
+            - generic [ref=e91]:
+              - paragraph [ref=e92]: Sistem Informasi
+              - generic [ref=e93]: Baik Sekali
+            - generic [ref=e94]:
+              - paragraph [ref=e95]: Informatika
+              - generic [ref=e96]: Unggul
+        - article [ref=e97]:
+          - generic [ref=e98]:
+            - img [ref=e100]
+            - heading "Fakultas Teknik" [level=3] [ref=e102]
+          - generic [ref=e103]:
+            - generic [ref=e104]:
+              - paragraph [ref=e105]: Teknik Sipil
+              - generic [ref=e106]: Unggul
+            - generic [ref=e107]:
+              - paragraph [ref=e108]: Arsitektur
+              - generic [ref=e109]: Baik Sekali
+            - generic [ref=e110]:
+              - paragraph [ref=e111]: Teknik Mesin
+              - generic [ref=e112]: Unggul
+        - article [ref=e113]:
+          - generic [ref=e114]:
+            - img [ref=e116]
+            - heading "Fakultas Ilmu Sosial & Politik" [level=3] [ref=e121]
+          - generic [ref=e122]:
+            - generic [ref=e123]:
+              - paragraph [ref=e124]: Administrasi Publik
+              - generic [ref=e125]: Unggul
+            - generic [ref=e126]:
+              - paragraph [ref=e127]: Administrasi Bisnis
+              - generic [ref=e128]: Baik Sekali
+            - generic [ref=e129]:
+              - paragraph [ref=e130]: Ilmu Komunikasi
+              - generic [ref=e131]: Unggul
+        - article [ref=e132]:
+          - generic [ref=e133]:
+            - img [ref=e135]
+            - heading "Fakultas Hukum" [level=3] [ref=e139]
+          - generic [ref=e141]:
+            - paragraph [ref=e142]: Ilmu Hukum
+            - generic [ref=e143]: A
+        - article [ref=e144]:
+          - generic [ref=e145]:
+            - img [ref=e147]
+            - heading "Fakultas Keguruan & Ilmu Pendidikan" [level=3] [ref=e150]
+          - generic [ref=e152]:
+            - paragraph [ref=e153]: Pendidikan Bahasa Inggris
+            - generic [ref=e154]: Unggul
+    - generic [ref=e156]:
+      - generic [ref=e157]:
+        - heading "Keunggulan Universitas Bandar Lampung" [level=2] [ref=e158]
+        - paragraph [ref=e159]: Komitmen kami dalam memberikan pendidikan terbaik didukung oleh fasilitas modern dan lingkungan belajar yang inspiratif.
+      - generic [ref=e160]:
+        - article [ref=e161]:
+          - generic [ref=e162]:
+            - img [ref=e164]
+            - heading "Program Studi Berkualitas" [level=3] [ref=e166]
+          - paragraph [ref=e167]: Lebih dari 10 program studi terakreditasi dengan kurikulum yang relevan dengan kebutuhan industri.
+          - generic [ref=e168]:
+            - generic [ref=e169]:
+              - img [ref=e170]
+              - text: Akreditasi Unggul
+            - generic [ref=e173]:
+              - img [ref=e174]
+              - text: Kurikulum Updated
+            - generic [ref=e177]:
+              - img [ref=e178]
+              - text: Sertifikasi Profesi
+        - article [ref=e181]:
+          - generic [ref=e182]:
+            - img [ref=e184]
+            - heading "Dosen Berpengalaman" [level=3] [ref=e189]
+          - paragraph [ref=e190]: Dosen-dosen profesional dengan latar belakang akademik dan pengalaman industri yang mumpuni.
+          - generic [ref=e191]:
+            - generic [ref=e192]:
+              - img [ref=e193]
+              - text: Profesional Berpengalaman
+            - generic [ref=e196]:
+              - img [ref=e197]
+              - text: Pendampingan Intensif
+            - generic [ref=e200]:
+              - img [ref=e201]
+              - text: Jaringan Industri Luas
+        - article [ref=e204]:
+          - generic [ref=e205]:
+            - img [ref=e207]
+            - heading "Prestasi Membanggakan" [level=3] [ref=e213]
+          - paragraph [ref=e214]: Mahasiswa UBL konsisten meraih prestasi di tingkat nasional dan internasional.
+          - generic [ref=e215]:
+            - generic [ref=e216]:
+              - img [ref=e217]
+              - text: Juara Kompetisi
+            - generic [ref=e220]:
+              - img [ref=e221]
+              - text: Penelitian Inovatif
+            - generic [ref=e224]:
+              - img [ref=e225]
+              - text: Pengabdian Masyarakat
+    - generic [ref=e229]:
+      - generic [ref=e230]:
+        - heading "Kelas Profesional" [level=2] [ref=e231]
+        - paragraph [ref=e232]: Program khusus bagi profesional yang ingin meningkatkan kualifikasi pendidikan tanpa mengganggu karir
+      - generic [ref=e233]:
+        - generic [ref=e234]:
+          - generic [ref=e235]:
+            - img [ref=e237]
+            - generic [ref=e241]:
+              - heading "Untuk Profesional yang Bekerja" [level=3] [ref=e242]
+              - paragraph [ref=e243]: Program Kelas Profesional merupakan program yang dirancang khusus bagi mahasiswa yang telah bekerja namun ingin meningkatkan kapabilitas dan kualifikasi pendidikannya.
+          - generic [ref=e244]:
+            - img [ref=e246]
+            - generic [ref=e249]:
+              - heading "Fokus Praktis & Relevan" [level=3] [ref=e250]
+              - paragraph [ref=e251]: Program ini menekankan penerapan praktis dan relevansi langsung dalam dunia kerja, memastikan pembelajaran dapat langsung diaplikasikan dalam karir Anda.
+          - generic [ref=e252]:
+            - heading "Keunggulan Kelas Profesional:" [level=4] [ref=e253]
+            - list [ref=e254]:
+              - listitem [ref=e255]: Jadwal fleksibel untuk pekerja
+              - listitem [ref=e257]: Kurikulum berbasis industri
+              - listitem [ref=e259]: Dosen praktisi profesional
+              - listitem [ref=e261]: Networking dengan sesama profesional
+              - listitem [ref=e263]: Aplikasi langsung di dunia kerja
+        - generic [ref=e265]:
+          - img [ref=e267]
+          - heading "Kelas Profesional" [level=3] [ref=e272]
+          - paragraph [ref=e273]: Solusi tepat untuk meningkatkan karir sambil melanjutkan pendidikan
+          - generic [ref=e274]:
+            - paragraph [ref=e275]: Fitur Unggulan
+            - generic [ref=e276]:
+              - generic [ref=e277]:
+                - img [ref=e278]
+                - text: Jadwal Weekend
+              - generic [ref=e281]:
+                - img [ref=e282]
+                - text: Blended Learning
+              - generic [ref=e285]:
+                - img [ref=e286]
+                - text: Studi Kasus Nyata
+    - generic [ref=e290]:
+      - generic [ref=e291]:
+        - heading "Program Beasiswa" [level=2] [ref=e292]
+        - paragraph [ref=e293]: Dukungan untuk mahasiswa berprestasi dan berpotensi tinggi dari berbagai latar belakang
+      - generic [ref=e294]:
+        - generic [ref=e295]:
+          - img [ref=e297]
+          - heading "Beasiswa Tersedia" [level=3] [ref=e300]
+          - paragraph [ref=e301]: Berbagai jenis beasiswa untuk mendukung pendidikan Anda
+          - generic [ref=e302]:
+            - paragraph [ref=e303]: Jenis Beasiswa
+            - generic [ref=e304]:
+              - generic [ref=e305]:
+                - img [ref=e306]
+                - generic [ref=e309]:
+                  - paragraph [ref=e310]: Reka Inovasi
+                  - paragraph [ref=e311]: Untuk inovator dan kreator
+              - generic [ref=e312]:
+                - img [ref=e313]
+                - generic [ref=e316]:
+                  - paragraph [ref=e317]: Prestasi Akademik
+                  - paragraph [ref=e318]: Untuk berprestasi akademik
+              - generic [ref=e319]:
+                - img [ref=e320]
+                - generic [ref=e323]:
+                  - paragraph [ref=e324]: Prestasi Non-Akademik
+                  - paragraph [ref=e325]: Untuk juara kompetisi
+              - generic [ref=e326]:
+                - img [ref=e327]
+                - generic [ref=e330]:
+                  - paragraph [ref=e331]: Loyalty
+                  - paragraph [ref=e332]: Untuk keluarga UBL
+              - generic [ref=e333]:
+                - img [ref=e334]
+                - generic [ref=e337]:
+                  - paragraph [ref=e338]: Sosial
+                  - paragraph [ref=e339]: Untuk yang membutuhkan
+        - generic [ref=e340]:
+          - generic [ref=e341]:
+            - img [ref=e343]
+            - generic [ref=e349]:
+              - heading "Untuk Berprestasi dan Berpotensi" [level=3] [ref=e350]
+              - paragraph [ref=e351]: Program Beasiswa adalah inisiatif untuk mendukung mahasiswa berprestasi dan berpotensi tinggi dari berbagai latar belakang.
+          - generic [ref=e352]:
+            - img [ref=e354]
+            - generic [ref=e356]:
+              - heading "Berbagai Jenis Beasiswa" [level=3] [ref=e357]
+              - paragraph [ref=e358]: Tersedia berbagai jenis beasiswa seperti Reka Inovasi, Prestasi Akademik dan Non Akademik, Loyalty, dan Sosial untuk memenuhi kebutuhan berbeda.
+  - contentinfo [ref=e359]:
+    - generic [ref=e360]:
+      - generic [ref=e361]:
+        - generic [ref=e362]:
+          - generic [ref=e363]:
+            - img [ref=e365]
+            - generic [ref=e368]:
+              - generic [ref=e369]: UBL Admissions
+              - generic [ref=e370]: Student Portal
+          - paragraph [ref=e371]: Universitas Bandar Lampung - Membangun Karir Unggul melalui Pendidikan Berkualitas dan Berkarakter.
+        - generic [ref=e372]:
+          - heading "Link Cepat" [level=4] [ref=e373]
+          - generic [ref=e374]:
+            - link "Login Student" [ref=e375] [cursor=pointer]:
+              - /url: "#kontak"
+              - img [ref=e376]
+              - text: Login Student
+            - link "Pendaftaran" [ref=e378] [cursor=pointer]:
+              - /url: "#beranda"
+              - img [ref=e379]
+              - text: Pendaftaran
+            - link "Program Studi" [ref=e381] [cursor=pointer]:
+              - /url: "#program"
+              - img [ref=e382]
+              - text: Program Studi
+            - link "Kelas Profesional" [ref=e384] [cursor=pointer]:
+              - /url: "#kelas-profesional"
+              - img [ref=e385]
+              - text: Kelas Profesional
+            - link "Beasiswa" [ref=e387] [cursor=pointer]:
+              - /url: "#beasiswa"
+              - img [ref=e388]
+              - text: Beasiswa
+        - generic [ref=e390]:
+          - heading "Kontak Kami" [level=4] [ref=e391]
+          - generic [ref=e392]:
+            - generic [ref=e393]:
+              - img [ref=e394]
+              - generic [ref=e397]: marketing@ubl.ac.id
+            - generic [ref=e398]:
+              - img [ref=e399]
+              - generic [ref=e401]: +62 823 1111 2437 (Nova - Kelas Madani)
+            - generic [ref=e402]:
+              - img [ref=e403]
+              - generic [ref=e405]: +62 822 7862 3337 (Inne - Kelas Profesional)
+            - generic [ref=e406]:
+              - img [ref=e407]
+              - generic [ref=e409]: +62 821 2476 5557 (Widya - Kelas Profesional)
+            - generic [ref=e410]:
+              - img [ref=e411]
+              - generic [ref=e414]: Bandar Lampung
+        - generic [ref=e415]:
+          - heading "Info Penting" [level=4] [ref=e416]
+          - generic [ref=e417]:
+            - generic [ref=e418]:
+              - paragraph [ref=e419]: Madani 2
+              - paragraph [ref=e420]: April 2026 - Juni 2026
+            - generic [ref=e421]:
+              - paragraph [ref=e422]: Kelas Profesional
+              - paragraph [ref=e423]: Untuk yang sudah bekerja
+            - generic [ref=e424]:
+              - paragraph [ref=e425]: Beasiswa Tersedia
+              - paragraph [ref=e426]: Berprestasi & Tidak Mampu
+      - paragraph [ref=e428]: (c) 2024 Universitas Bandar Lampung. All rights reserved. | Terakreditasi Unggul
+  - generic [ref=e429]:
+    - generic [ref=e430]:
+      - paragraph [ref=e434]: Fitur Baru
+      - paragraph [ref=e435]: Coba Chatbot PMB UBL yuk
+    - button "Buka chat" [ref=e436] [cursor=pointer]:
+      - generic [ref=e437]: UBL
+      - img [ref=e438]
+  - button "Open Next.js Dev Tools" [ref=e445] [cursor=pointer]:
+    - img [ref=e446]
