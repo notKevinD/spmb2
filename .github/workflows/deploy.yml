@@ -50,7 +50,7 @@ jobs:
             npm run build
             
             echo "🔄 Restarting PM2..."
-            pm2 restart spmb || pm2 start npm --name "spmb" -- run start
+            pm2 restart spmb2 || pm2 start npm --name "spmb2" -- run start
             pm2 save
             
             echo "✅ Deployment completed!"
