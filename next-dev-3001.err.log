@@ -1,0 +1,8 @@
+⨯ Another next dev server is already running.
+
+- Local:        http://localhost:3002
+- PID:          18608
+- Dir:          D:\vibeCode\spmb2\pmb-ubl
+- Log:          .next\dev\logs\next-development.log
+
+Run taskkill /PID 18608 /F to stop it.

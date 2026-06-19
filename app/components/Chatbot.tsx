@@ -9,6 +9,7 @@ import {
   AlertCircle,
   Minimize2,
   Download,
+  GraduationCap,
 } from 'lucide-react';
 
 type Message = {
@@ -243,7 +244,7 @@ export default function Chatbot() {
         const parsedMessages = JSON.parse(savedMessages);
 
         if (Array.isArray(parsedMessages)) {
-          setMessages(parsedMessages);
+          queueMicrotask(() => setMessages(parsedMessages));
         }
       } catch {
         localStorage.removeItem(getChatHistoryKey(sessionId));
@@ -504,29 +505,46 @@ export default function Chatbot() {
 
   if (!isOpen || isMinimized) {
     return (
-      <button
-        onClick={() => {
-          setIsOpen(true);
-          setIsMinimized(false);
-        }}
-        className="fixed bottom-6 right-6 z-50 w-14 h-14 bg-[#0a1628] text-white rounded-full shadow-2xl hover:bg-[#0f2040] transition-all duration-200 hover:scale-110 flex items-center justify-center"
-        aria-label="Buka chat"
-        type="button"
-      >
-        <MessageCircle className="w-6 h-6" />
+      <div className="fixed bottom-6 right-6 z-50 flex items-end gap-3">
+        <div className="relative max-w-[190px] rounded-[26px] border border-sky-100 bg-white px-4 py-3 text-right shadow-xl shadow-sky-900/12">
+          <span className="absolute -right-1 bottom-5 h-4 w-4 rotate-45 border-r border-t border-sky-100 bg-white" />
+          <span className="absolute -top-1 left-5 h-3 w-3 rounded-full bg-white shadow-sm" />
+          <span className="absolute -top-2 left-10 h-4 w-4 rounded-full bg-white shadow-sm" />
+          <p className="relative text-[11px] font-bold uppercase tracking-normal text-[#087ee7]">
+            Fitur Baru
+          </p>
+          <p className="relative mt-0.5 text-sm font-extrabold leading-snug text-[#11192d]">
+            Coba Chatbot PMB UBL yuk
+          </p>
+        </div>
 
-        {isMinimized && messages.length > 0 && (
-          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
-            {messages.length}
+        <button
+          onClick={() => {
+            setIsOpen(true);
+            setIsMinimized(false);
+          }}
+          className="relative flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-[#1689f8] via-[#087ee7] to-[#02afd4] text-white shadow-2xl shadow-sky-500/30 ring-4 ring-white/90 transition-all duration-200 hover:-translate-y-0.5 hover:scale-105"
+          aria-label="Buka chat"
+          type="button"
+        >
+          <span className="absolute -left-1 -top-1 flex h-6 min-w-6 items-center justify-center rounded-full bg-[#ff8a05] px-1.5 text-[10px] font-extrabold text-white shadow-lg shadow-orange-500/30">
+            UBL
           </span>
-        )}
-      </button>
+          <MessageCircle className="h-7 w-7" />
+
+          {isMinimized && messages.length > 0 && (
+            <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-[#ff7400] text-xs font-bold text-white">
+              {messages.length}
+            </span>
+          )}
+        </button>
+      </div>
     );
   }
 
   return (
     <div
-      className="fixed z-50 flex flex-col bg-white rounded-2xl shadow-2xl overflow-hidden"
+      className="fixed z-50 flex flex-col overflow-hidden rounded-2xl border border-sky-100 bg-white shadow-2xl shadow-slate-900/20"
       style={{
         bottom: '24px',
         right: '24px',
@@ -534,21 +552,35 @@ export default function Chatbot() {
         height: 'min(620px, calc(100vh - 120px))',
       }}
     >
-      <div className="flex items-center justify-between px-4 py-3 shrink-0 bg-[#0a1628]">
-        <div>
-          <h3 className="font-bold text-white text-sm">Chat Support PMB</h3>
-          <p className="text-white/40 text-xs">
-            {visitor
-              ? visitor.name + ' • ' + visitor.school
-              : 'Isi data terlebih dahulu'}
-          </p>
+      <div className="relative flex shrink-0 items-center justify-between overflow-hidden bg-gradient-to-r from-[#11192d] via-[#0875df] to-[#02afd4] px-4 py-3">
+        <div className="absolute -right-8 -top-10 h-28 w-28 rounded-full bg-white/12" />
+        <div className="absolute right-16 top-8 h-16 w-16 rounded-full bg-[#ff9b05]/20" />
+        <div className="relative flex min-w-0 items-center gap-3">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/18 ring-1 ring-white/25">
+            <GraduationCap className="h-5 w-5 text-white" />
+          </span>
+          <div className="min-w-0">
+            <div className="flex items-center gap-2">
+              <h3 className="truncate text-sm font-extrabold text-white">
+                Chat Support PMB UBL
+              </h3>
+              <span className="rounded-full bg-[#ff9b05] px-2 py-0.5 text-[10px] font-extrabold text-white">
+                LIVE
+              </span>
+            </div>
+            <p className="truncate text-xs font-medium text-white/70">
+              {visitor
+                ? visitor.name + ' - ' + visitor.school
+                : 'Universitas Bandar Lampung'}
+            </p>
+          </div>
         </div>
 
-        <div className="flex items-center gap-1">
+        <div className="relative flex items-center gap-1">
           <button
             onClick={downloadChatHistory}
             disabled={messages.length === 0 || isLoading}
-            className="p-2 text-white/60 hover:text-white hover:bg-white/10 rounded-lg transition-colors disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent"
+            className="rounded-lg p-2 text-white/70 transition-colors hover:bg-white/15 hover:text-white disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent"
             title={
               messages.length === 0
                 ? 'Belum ada percakapan untuk diunduh'
@@ -564,7 +596,7 @@ export default function Chatbot() {
             <button
               onClick={startNewChat}
               disabled={isLoading || showWarning}
-              className="p-2 text-white/60 hover:text-white hover:bg-white/10 rounded-lg transition-colors disabled:opacity-30"
+              className="rounded-lg p-2 text-white/70 transition-colors hover:bg-white/15 hover:text-white disabled:opacity-30"
               title="Chat baru"
               type="button"
             >
@@ -574,7 +606,7 @@ export default function Chatbot() {
 
           <button
             onClick={() => setIsMinimized(true)}
-            className="p-2 text-white/60 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+            className="rounded-lg p-2 text-white/70 transition-colors hover:bg-white/15 hover:text-white"
             title="Minimize"
             type="button"
           >
@@ -583,7 +615,7 @@ export default function Chatbot() {
 
           <button
             onClick={() => setIsOpen(false)}
-            className="p-2 text-white/60 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+            className="rounded-lg p-2 text-white/70 transition-colors hover:bg-white/15 hover:text-white"
             title="Tutup"
             type="button"
           >
@@ -595,18 +627,18 @@ export default function Chatbot() {
       {!visitor ? (
         <form
           onSubmit={startChatWithVisitor}
-          className="flex-1 bg-gray-50 p-5 flex flex-col justify-center gap-3"
+          className="flex flex-1 flex-col justify-center gap-3 bg-gradient-to-b from-[#eef8ff] via-white to-[#f7fbff] p-5"
         >
           <div className="text-center mb-3">
-            <div className="w-14 h-14 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4">
-              <MessageCircle className="w-7 h-7 text-gray-300" />
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-[#1689f8] to-[#02afd4] shadow-lg shadow-sky-500/20">
+              <GraduationCap className="h-8 w-8 text-white" />
             </div>
 
-            <p className="text-[#0a1628] font-semibold text-sm">
+            <p className="text-sm font-extrabold text-[#11192d]">
               Selamat datang di Chat Support PMB UBL
             </p>
 
-            <p className="text-xs text-gray-400 mt-1">
+            <p className="mt-1 text-xs font-medium text-[#334766]">
               Silakan isi data berikut sebelum memulai chat.
             </p>
           </div>
@@ -621,7 +653,7 @@ export default function Chatbot() {
               }))
             }
             placeholder="Nama lengkap"
-            className="bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#0a1628]/20 focus:border-[#0a1628]"
+            className="rounded-xl border border-sky-100 bg-white px-4 py-2.5 text-sm text-[#11192d] shadow-sm shadow-sky-900/5 transition-all placeholder:text-slate-400 focus:border-[#087ee7] focus:outline-none focus:ring-2 focus:ring-[#087ee7]/20"
           />
 
           <input
@@ -634,7 +666,7 @@ export default function Chatbot() {
               }))
             }
             placeholder="Nomor WhatsApp"
-            className="bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#0a1628]/20 focus:border-[#0a1628]"
+            className="rounded-xl border border-sky-100 bg-white px-4 py-2.5 text-sm text-[#11192d] shadow-sm shadow-sky-900/5 transition-all placeholder:text-slate-400 focus:border-[#087ee7] focus:outline-none focus:ring-2 focus:ring-[#087ee7]/20"
           />
 
           <input
@@ -647,18 +679,18 @@ export default function Chatbot() {
               }))
             }
             placeholder="Asal sekolah"
-            className="bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#0a1628]/20 focus:border-[#0a1628]"
+            className="rounded-xl border border-sky-100 bg-white px-4 py-2.5 text-sm text-[#11192d] shadow-sm shadow-sky-900/5 transition-all placeholder:text-slate-400 focus:border-[#087ee7] focus:outline-none focus:ring-2 focus:ring-[#087ee7]/20"
           />
 
           <button
             type="submit"
             disabled={isStartingChat}
-            className="mt-2 bg-[#0a1628] text-white rounded-xl py-2.5 text-sm font-medium hover:bg-[#0f2040] disabled:bg-gray-300 disabled:cursor-not-allowed"
+            className="mt-2 rounded-xl bg-gradient-to-r from-[#1689f8] to-[#02afd4] py-2.5 text-sm font-extrabold text-white shadow-lg shadow-sky-500/20 transition-transform hover:-translate-y-0.5 disabled:translate-y-0 disabled:cursor-not-allowed disabled:from-slate-300 disabled:to-slate-300 disabled:shadow-none"
           >
             {isStartingChat ? 'Memulai chat...' : 'Mulai Chat'}
           </button>
 
-          <p className="text-[11px] text-gray-400 text-center mt-2 leading-relaxed">
+          <p className="mt-2 text-center text-[11px] leading-relaxed text-[#334766]/70">
             Data ini digunakan untuk membantu layanan informasi PMB UBL.
           </p>
         </form>
@@ -683,7 +715,7 @@ export default function Chatbot() {
             </div>
           )}
 
-          <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50 min-h-0">
+          <div className="min-h-0 flex-1 space-y-3 overflow-y-auto bg-gradient-to-b from-[#eef8ff] via-[#f7fbff] to-white p-4">
             {messages.map((message, index) => (
               <div
                 key={message.role + '-' + index}
@@ -696,10 +728,10 @@ export default function Chatbot() {
               >
                 <div
                   className={
-                    'max-w-[85%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed whitespace-pre-line ' +
+                    'max-w-[85%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed whitespace-pre-line shadow-sm ' +
                     (message.role === 'user'
-                      ? 'bg-[#0a1628] text-white rounded-br-sm'
-                      : 'bg-white border border-gray-100 text-gray-700 shadow-sm rounded-bl-sm')
+                      ? 'rounded-br-sm bg-gradient-to-br from-[#087ee7] to-[#02afd4] text-white shadow-sky-500/20'
+                      : 'rounded-bl-sm border border-sky-100 bg-white text-[#334766] shadow-sky-900/5')
                   }
                 >
                   {message.role === 'assistant'
@@ -711,12 +743,12 @@ export default function Chatbot() {
 
             {isLoading && (
               <div className="flex justify-start">
-                <div className="bg-white border border-gray-100 rounded-2xl rounded-bl-sm px-4 py-3 shadow-sm">
+                <div className="rounded-2xl rounded-bl-sm border border-sky-100 bg-white px-4 py-3 shadow-sm shadow-sky-900/5">
                   <div className="flex gap-1.5">
                     {[0, 0.15, 0.3].map((delay, i) => (
                       <div
                         key={i}
-                        className="w-2 h-2 bg-gray-300 rounded-full animate-bounce"
+                        className="h-2 w-2 animate-bounce rounded-full bg-[#087ee7]"
                         style={{
                           animationDelay: String(delay) + 's',
                         }}
@@ -730,7 +762,7 @@ export default function Chatbot() {
             <div ref={messagesEndRef} />
           </div>
 
-          <div className="shrink-0 bg-white border-t border-gray-100 p-3">
+          <div className="shrink-0 border-t border-sky-100 bg-white p-3">
             <form onSubmit={sendMessage}>
               <div className="flex gap-2 items-center">
                 <input
@@ -739,7 +771,7 @@ export default function Chatbot() {
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   placeholder="Ketik pesan..."
-                  className="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#0a1628]/20 focus:border-[#0a1628] transition-all placeholder:text-gray-300 disabled:opacity-50"
+                  className="flex-1 rounded-xl border border-sky-100 bg-[#f7fbff] px-4 py-2.5 text-sm text-[#11192d] transition-all placeholder:text-slate-400 focus:border-[#087ee7] focus:outline-none focus:ring-2 focus:ring-[#087ee7]/20 disabled:opacity-50"
                 />
 
                 <button
@@ -751,7 +783,7 @@ export default function Chatbot() {
                     !sessionId ||
                     !visitor
                   }
-                  className="w-10 h-10 bg-[#0a1628] text-white rounded-xl flex items-center justify-center hover:bg-[#0f2040] disabled:bg-gray-200 disabled:cursor-not-allowed transition-all shrink-0"
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#1689f8] to-[#02afd4] text-white shadow-md shadow-sky-500/20 transition-all hover:-translate-y-0.5 disabled:translate-y-0 disabled:cursor-not-allowed disabled:from-slate-200 disabled:to-slate-200 disabled:shadow-none"
                   aria-label="Kirim pesan"
                 >
                   <Send className="w-4 h-4" />
@@ -762,7 +794,7 @@ export default function Chatbot() {
             <button
               type="button"
               onClick={resetVisitorData}
-              className="text-[11px] text-gray-400 hover:text-gray-600 mt-2 block mx-auto"
+              className="mx-auto mt-2 block text-[11px] font-medium text-[#087ee7] hover:text-[#11192d]"
             >
               Ganti data pengguna
             </button>
