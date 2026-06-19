@@ -59,7 +59,7 @@ export default function Navbar() {
           ))}
         </div>
 
-        <div className="hidden items-center gap-3 md:flex">
+        <div className="hidden items-center gap-3 lg:flex">
           <Link
             href="#kontak"
             className="rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition-colors hover:border-[#0786e8] hover:text-[#0786e8]"
@@ -77,15 +77,18 @@ export default function Navbar() {
         <button
           type="button"
           onClick={() => setIsMenuOpen((value) => !value)}
-          className="rounded-lg border border-slate-200 p-2 text-slate-700 md:hidden"
-          aria-label="Buka menu"
+          className="rounded-lg border border-slate-200 p-2 text-slate-700 lg:hidden"
+          aria-expanded={isMenuOpen}
+          aria-controls="mobile-navigation"
+          aria-label={isMenuOpen ? 'Tutup menu' : 'Buka menu'}
         >
           {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </button>
       </div>
 
       <div
-        className={`fixed inset-x-0 top-[78px] z-40 border-t border-slate-200 bg-white px-6 py-5 shadow-xl transition-all md:hidden ${
+        id="mobile-navigation"
+        className={`fixed inset-x-0 top-[78px] z-40 border-t border-slate-200 bg-white px-6 py-5 shadow-xl transition-all lg:hidden ${
           isMenuOpen ? 'translate-y-0 opacity-100' : 'pointer-events-none -translate-y-3 opacity-0'
         }`}
       >
