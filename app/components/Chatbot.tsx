@@ -200,7 +200,8 @@ export default function Chatbot() {
     school: '',
   });
 
-  const [showWarning, setShowWarning] = useState(false);
+  const [showNewChatConfirm, setShowNewChatConfirm] = useState(false);
+  const [isCreatingNewChat, setIsCreatingNewChat] = useState(false);
   const [notice, setNotice] = useState<ChatNotice | null>(null);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -430,17 +431,20 @@ export default function Chatbot() {
     }
   };
 
-  const startNewChat = async () => {
+  const startNewChat = () => {
+    if (!visitor || isLoading || isCreatingNewChat) return;
+
+    setNotice(null);
+    setShowNewChatConfirm(true);
+  };
+
+  const confirmNewChat = async () => {
     if (!visitor) return;
 
     setNotice(null);
-    setShowWarning(true);
+    setIsCreatingNewChat(true);
 
     try {
-      if (sessionId) {
-        localStorage.removeItem(getChatHistoryKey(sessionId));
-      }
-
       const res = await fetch('/api/chat/new-session', {
         method: 'POST',
         headers: {
@@ -453,6 +457,10 @@ export default function Chatbot() {
 
       if (!res.ok || !data.success) {
         throw new Error(data.error || 'Gagal membuat session baru.');
+      }
+
+      if (sessionId) {
+        localStorage.removeItem(getChatHistoryKey(sessionId));
       }
 
       setSessionId(data.sessionId);
@@ -481,7 +489,8 @@ export default function Chatbot() {
         ),
       });
     } finally {
-      setShowWarning(false);
+      setIsCreatingNewChat(false);
+      setShowNewChatConfirm(false);
     }
   };
 
@@ -647,7 +656,7 @@ export default function Chatbot() {
           {visitor && (
             <button
               onClick={startNewChat}
-              disabled={isLoading || showWarning}
+              disabled={isLoading || isCreatingNewChat}
               className="rounded-lg p-2 text-white/70 transition-colors hover:bg-white/15 hover:text-white disabled:opacity-30"
               title="Chat baru"
               type="button"
@@ -752,31 +761,62 @@ export default function Chatbot() {
         </form>
       ) : (
         <>
+          {showNewChatConfirm && (
+            <div className="absolute inset-0 z-20 flex items-center justify-center bg-[#11192d]/45 p-5">
+              <div
+                className="w-full max-w-sm rounded-lg bg-white p-4 shadow-xl"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="new-chat-confirm-title"
+                aria-describedby="new-chat-confirm-message"
+              >
+                <div className="flex items-start gap-3">
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-amber-100 text-amber-700">
+                    <AlertCircle className="h-5 w-5" />
+                  </span>
+                  <div>
+                    <h4
+                      id="new-chat-confirm-title"
+                      className="text-sm font-bold text-[#11192d]"
+                    >
+                      Buat chat baru?
+                    </h4>
+                    <p
+                      id="new-chat-confirm-message"
+                      className="mt-1 text-xs leading-relaxed text-[#334766]"
+                    >
+                      Riwayat percakapan saat ini tidak dapat dilihat lagi setelah chat baru dibuat.
+                    </p>
+                  </div>
+                </div>
+                <div className="mt-4 flex justify-end gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowNewChatConfirm(false)}
+                    disabled={isCreatingNewChat}
+                    className="rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-[#334766] transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    Batal
+                  </button>
+                  <button
+                    type="button"
+                    onClick={confirmNewChat}
+                    disabled={isCreatingNewChat}
+                    className="rounded-lg bg-[#087ee7] px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-[#056bc4] disabled:cursor-not-allowed disabled:bg-slate-300"
+                  >
+                    {isCreatingNewChat ? 'Membuat chat...' : 'Ya, buat chat baru'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
           {notice && (
             <div className="shrink-0 px-3 pt-3">
               <ChatNoticePanel
                 notice={notice}
                 onClose={() => setNotice(null)}
               />
-            </div>
-          )}
-
-          {showWarning && (
-            <div className="bg-amber-50 border-l-4 border-amber-400 p-3 mx-3 mt-2 rounded shrink-0">
-              <div className="flex items-start gap-2">
-                <AlertCircle className="w-4 h-4 text-amber-600 mt-0.5 shrink-0" />
-
-                <div className="text-xs text-amber-800">
-                  <p className="font-semibold">Peringatan!</p>
-                  <p>
-                    History chat sebelumnya tidak akan bisa dilihat lagi setelah
-                    membuat chat baru.
-                  </p>
-                  <p className="text-amber-600 mt-1">
-                    Membuat session baru...
-                  </p>
-                </div>
-              </div>
             </div>
           )}
 
@@ -844,7 +884,8 @@ export default function Chatbot() {
                   disabled={
                     isLoading ||
                     !input.trim() ||
-                    showWarning ||
+                    showNewChatConfirm ||
+                    isCreatingNewChat ||
                     !sessionId ||
                     !visitor
                   }
