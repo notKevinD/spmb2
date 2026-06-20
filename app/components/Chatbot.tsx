@@ -28,6 +28,8 @@ type ChatNotice = {
   message: string;
 };
 
+type ConfirmationAction = 'new-chat' | 'change-user';
+
 const VISITOR_STORAGE_KEY = 'pmb_chat_visitor';
 
 function getChatHistoryKey(sessionId: string) {
@@ -200,7 +202,8 @@ export default function Chatbot() {
     school: '',
   });
 
-  const [showNewChatConfirm, setShowNewChatConfirm] = useState(false);
+  const [confirmationAction, setConfirmationAction] =
+    useState<ConfirmationAction | null>(null);
   const [isCreatingNewChat, setIsCreatingNewChat] = useState(false);
   const [notice, setNotice] = useState<ChatNotice | null>(null);
 
@@ -435,7 +438,7 @@ export default function Chatbot() {
     if (!visitor || isLoading || isCreatingNewChat) return;
 
     setNotice(null);
-    setShowNewChatConfirm(true);
+    setConfirmationAction('new-chat');
   };
 
   const confirmNewChat = async () => {
@@ -490,7 +493,7 @@ export default function Chatbot() {
       });
     } finally {
       setIsCreatingNewChat(false);
-      setShowNewChatConfirm(false);
+      setConfirmationAction(null);
     }
   };
 
@@ -511,6 +514,13 @@ export default function Chatbot() {
     });
 
     hasLoadedHistoryRef.current = false;
+  };
+
+  const requestVisitorDataChange = () => {
+    if (isCreatingNewChat) return;
+
+    setNotice(null);
+    setConfirmationAction('change-user');
   };
 
   const downloadChatHistory = () => {
@@ -761,7 +771,7 @@ export default function Chatbot() {
         </form>
       ) : (
         <>
-          {showNewChatConfirm && (
+          {confirmationAction && (
             <div className="absolute inset-0 z-20 flex items-center justify-center bg-[#11192d]/45 p-5">
               <div
                 className="w-full max-w-sm rounded-lg bg-white p-4 shadow-xl"
@@ -779,20 +789,24 @@ export default function Chatbot() {
                       id="new-chat-confirm-title"
                       className="text-sm font-bold text-[#11192d]"
                     >
-                      Buat chat baru?
+                      {confirmationAction === 'new-chat'
+                        ? 'Buat chat baru?'
+                        : 'Ganti data pengguna?'}
                     </h4>
                     <p
                       id="new-chat-confirm-message"
                       className="mt-1 text-xs leading-relaxed text-[#334766]"
                     >
-                      Riwayat percakapan saat ini tidak dapat dilihat lagi setelah chat baru dibuat.
+                      {confirmationAction === 'new-chat'
+                        ? 'Riwayat percakapan saat ini tidak dapat dilihat lagi setelah chat baru dibuat.'
+                        : 'Data pengguna dan riwayat percakapan saat ini akan dihapus dari perangkat ini.'}
                     </p>
                   </div>
                 </div>
                 <div className="mt-4 flex justify-end gap-2">
                   <button
                     type="button"
-                    onClick={() => setShowNewChatConfirm(false)}
+                    onClick={() => setConfirmationAction(null)}
                     disabled={isCreatingNewChat}
                     className="rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-[#334766] transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
                   >
@@ -800,11 +814,22 @@ export default function Chatbot() {
                   </button>
                   <button
                     type="button"
-                    onClick={confirmNewChat}
+                    onClick={
+                      confirmationAction === 'new-chat'
+                        ? confirmNewChat
+                        : () => {
+                            resetVisitorData();
+                            setConfirmationAction(null);
+                          }
+                    }
                     disabled={isCreatingNewChat}
                     className="rounded-lg bg-[#087ee7] px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-[#056bc4] disabled:cursor-not-allowed disabled:bg-slate-300"
                   >
-                    {isCreatingNewChat ? 'Membuat chat...' : 'Ya, buat chat baru'}
+                    {isCreatingNewChat
+                      ? 'Membuat chat...'
+                      : confirmationAction === 'new-chat'
+                        ? 'Ya, buat chat baru'
+                        : 'Ya, ganti data'}
                   </button>
                 </div>
               </div>
@@ -884,7 +909,7 @@ export default function Chatbot() {
                   disabled={
                     isLoading ||
                     !input.trim() ||
-                    showNewChatConfirm ||
+                    confirmationAction !== null ||
                     isCreatingNewChat ||
                     !sessionId ||
                     !visitor
@@ -899,7 +924,7 @@ export default function Chatbot() {
 
             <button
               type="button"
-              onClick={resetVisitorData}
+              onClick={requestVisitorDataChange}
               className="mx-auto mt-2 block text-[11px] font-medium text-[#087ee7] hover:text-[#11192d]"
             >
               Ganti data pengguna
