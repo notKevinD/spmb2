@@ -23,6 +23,11 @@ type Visitor = {
   school: string;
 };
 
+type ChatNotice = {
+  title: string;
+  message: string;
+};
+
 const VISITOR_STORAGE_KEY = 'pmb_chat_visitor';
 
 function getChatHistoryKey(sessionId: string) {
@@ -162,6 +167,20 @@ function renderAssistantMessage(text: string) {
   return elements;
 }
 
+function getUserFacingErrorMessage(error: unknown, fallback: string) {
+  if (
+    error instanceof Error &&
+    [
+      'Nama, nomor WhatsApp, dan asal sekolah wajib diisi.',
+      'Nomor WhatsApp tidak valid.',
+    ].includes(error.message)
+  ) {
+    return error.message;
+  }
+
+  return fallback;
+}
+
 export default function Chatbot() {
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
@@ -182,6 +201,7 @@ export default function Chatbot() {
   });
 
   const [showWarning, setShowWarning] = useState(false);
+  const [notice, setNotice] = useState<ChatNotice | null>(null);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -224,9 +244,20 @@ export default function Chatbot() {
 
         if (data.success && data.sessionId) {
           setSessionId(data.sessionId);
+        } else {
+          setNotice({
+            title: 'Sesi chat belum siap',
+            message:
+              'Koneksi ke layanan chat belum berhasil dibuat. Coba muat ulang halaman sebelum memulai percakapan.',
+          });
         }
       } catch (error) {
         console.error('Gagal membaca session:', error);
+        setNotice({
+          title: 'Sesi chat belum siap',
+          message:
+            'Koneksi ke layanan chat bermasalah. Periksa koneksi internet Anda, lalu muat ulang halaman.',
+        });
         sessionInitializedRef.current = false;
       }
     }
@@ -268,10 +299,15 @@ export default function Chatbot() {
     const school = visitorForm.school.trim();
 
     if (!name || !phone || !school) {
-      alert('Nama, nomor WhatsApp, dan asal sekolah wajib diisi.');
+      setNotice({
+        title: 'Data belum lengkap',
+        message:
+          'Isi nama lengkap, nomor WhatsApp, dan asal sekolah sebelum memulai chat.',
+      });
       return;
     }
 
+    setNotice(null);
     setIsStartingChat(true);
 
     try {
@@ -285,7 +321,7 @@ export default function Chatbot() {
 
       const data = await res.json();
 
-      if (!data.success) {
+      if (!res.ok || !data.success) {
         throw new Error(data.error || 'Gagal memulai chat.');
       }
 
@@ -313,7 +349,13 @@ export default function Chatbot() {
       );
     } catch (error) {
       console.error('Gagal memulai chat:', error);
-      alert('Gagal memulai chat. Silakan coba lagi.');
+      setNotice({
+        title: 'Chat belum dapat dimulai',
+        message: getUserFacingErrorMessage(
+          error,
+          'Layanan pendaftaran sedang tidak dapat dihubungi. Silakan coba lagi beberapa saat lagi.'
+        ),
+      });
     } finally {
       setIsStartingChat(false);
     }
@@ -327,6 +369,7 @@ export default function Chatbot() {
     const userMessage = input.trim();
 
     setInput('');
+    setNotice(null);
 
     setMessages((prev) => [
       ...prev,
@@ -353,8 +396,8 @@ export default function Chatbot() {
 
       const data = await res.json();
 
-      if (!data.success) {
-        throw new Error(data.error || 'Chat request failed');
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || 'Pesan tidak dapat dikirim.');
       }
 
       setMessages((prev) => [
@@ -368,7 +411,13 @@ export default function Chatbot() {
       if (data.sessionId && !sessionId) {
         setSessionId(data.sessionId);
       }
-    } catch {
+    } catch (error) {
+      console.error('Gagal mengirim pesan:', error);
+      setNotice({
+        title: 'Pesan belum terkirim',
+        message:
+          'Pesan Anda belum berhasil dikirim. Periksa koneksi internet, lalu kirim kembali pesan tersebut.',
+      });
       setMessages((prev) => [
         ...prev,
         {
@@ -384,6 +433,7 @@ export default function Chatbot() {
   const startNewChat = async () => {
     if (!visitor) return;
 
+    setNotice(null);
     setShowWarning(true);
 
     try {
@@ -401,7 +451,7 @@ export default function Chatbot() {
 
       const data = await res.json();
 
-      if (!data.success) {
+      if (!res.ok || !data.success) {
         throw new Error(data.error || 'Gagal membuat session baru.');
       }
 
@@ -421,8 +471,15 @@ export default function Chatbot() {
         getChatHistoryKey(data.sessionId),
         JSON.stringify(newMessages)
       );
-    } catch {
-      alert('Gagal memulai chat baru.');
+    } catch (error) {
+      console.error('Gagal memulai chat baru:', error);
+      setNotice({
+        title: 'Chat baru belum dibuat',
+        message: getUserFacingErrorMessage(
+          error,
+          'Riwayat chat tetap tersimpan. Silakan coba buat chat baru beberapa saat lagi.'
+        ),
+      });
     } finally {
       setShowWarning(false);
     }
@@ -638,6 +695,10 @@ export default function Chatbot() {
             </p>
           </div>
 
+          {notice && (
+            <ChatNoticePanel notice={notice} onClose={() => setNotice(null)} />
+          )}
+
           <input
             type="text"
             value={visitorForm.name}
@@ -691,6 +752,15 @@ export default function Chatbot() {
         </form>
       ) : (
         <>
+          {notice && (
+            <div className="shrink-0 px-3 pt-3">
+              <ChatNoticePanel
+                notice={notice}
+                onClose={() => setNotice(null)}
+              />
+            </div>
+          )}
+
           {showWarning && (
             <div className="bg-amber-50 border-l-4 border-amber-400 p-3 mx-3 mt-2 rounded shrink-0">
               <div className="flex items-start gap-2">
@@ -796,6 +866,36 @@ export default function Chatbot() {
           </div>
         </>
       )}
+    </div>
+  );
+}
+
+function ChatNoticePanel({
+  notice,
+  onClose,
+}: {
+  notice: ChatNotice;
+  onClose: () => void;
+}) {
+  return (
+    <div
+      className="flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2.5 text-left text-xs text-red-900"
+      role="alert"
+    >
+      <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-red-600" />
+      <div className="min-w-0 flex-1">
+        <p className="font-semibold">{notice.title}</p>
+        <p className="mt-0.5 leading-relaxed text-red-800">{notice.message}</p>
+      </div>
+      <button
+        type="button"
+        onClick={onClose}
+        className="shrink-0 rounded p-0.5 text-red-600 hover:bg-red-100 hover:text-red-800"
+        aria-label="Tutup pesan kesalahan"
+        title="Tutup"
+      >
+        <X className="h-4 w-4" />
+      </button>
     </div>
   );
 }
