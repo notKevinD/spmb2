@@ -600,14 +600,14 @@ export default function Chatbot() {
             setIsMinimized(false);
           }}
           className={
-            'relative flex items-center justify-center rounded-full bg-gradient-to-br from-[#1689f8] via-[#087ee7] to-[#02afd4] text-white shadow-2xl shadow-sky-500/30 ring-4 ring-white/90 transition-all duration-200 hover:-translate-y-0.5 hover:scale-105 ' +
+            'relative flex items-center justify-center rounded-full bg-[#075da8] text-white shadow-xl shadow-[#063f73]/30 ring-4 ring-white/95 transition-all duration-200 hover:-translate-y-0.5 hover:scale-105 hover:bg-[#064f90] ' +
             (isMinimized ? 'h-14 w-14' : 'h-16 w-16')
           }
           aria-label={isMinimized ? 'Lanjutkan chat' : 'Buka chat'}
           title={isMinimized ? 'Lanjutkan chat' : 'Buka chat'}
           type="button"
         >
-          <span className="absolute -left-1 -top-1 flex h-6 min-w-6 items-center justify-center rounded-full bg-[#ff8a05] px-1.5 text-[10px] font-extrabold text-white shadow-lg shadow-orange-500/30">
+          <span className="absolute -left-1 -top-1 flex h-6 min-w-6 items-center justify-center rounded-full border-2 border-white bg-[#f5a623] px-1.5 text-[10px] font-extrabold text-[#083b6f] shadow-lg shadow-orange-500/25">
             UBL
           </span>
           <MessageCircle className="h-7 w-7" />
@@ -624,7 +624,7 @@ export default function Chatbot() {
 
   return (
     <div
-      className="fixed z-50 flex flex-col overflow-hidden rounded-2xl border border-sky-100 bg-white shadow-2xl shadow-slate-900/20"
+      className="fixed z-50 flex flex-col overflow-hidden rounded-2xl border border-[#c6d8ea] bg-white shadow-2xl shadow-[#102a43]/25"
       style={{
         bottom: '24px',
         right: '24px',
@@ -632,11 +632,11 @@ export default function Chatbot() {
         height: 'min(620px, calc(100vh - 120px))',
       }}
     >
-      <div className="relative flex shrink-0 items-center justify-between overflow-hidden bg-gradient-to-r from-[#11192d] via-[#0875df] to-[#02afd4] px-4 py-3">
-        <div className="absolute -right-8 -top-10 h-28 w-28 rounded-full bg-white/12" />
-        <div className="absolute right-16 top-8 h-16 w-16 rounded-full bg-[#ff9b05]/20" />
+      <div className="relative flex shrink-0 items-center justify-between overflow-hidden border-b-4 border-[#f5a623] bg-gradient-to-r from-[#062b55] via-[#075da8] to-[#0878bd] px-4 py-3.5">
+        <div className="absolute -right-8 -top-10 h-28 w-28 rounded-full bg-white/10" />
+        <div className="absolute right-16 top-8 h-16 w-16 rounded-full bg-[#f5a623]/20" />
         <div className="relative flex min-w-0 items-center gap-3">
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/18 ring-1 ring-white/25">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/15 ring-1 ring-white/35">
             <GraduationCap className="h-5 w-5 text-white" />
           </span>
           <div className="min-w-0">
@@ -645,7 +645,7 @@ export default function Chatbot() {
                 Chat Support PMB UBL
               </h3>
             </div>
-            <p className="truncate text-xs font-medium text-white/70">
+            <p className="truncate text-xs font-medium text-white/80">
               {visitor
                 ? visitor.name + ' - ' + visitor.school
                 : 'Universitas Bandar Lampung'}
@@ -657,7 +657,7 @@ export default function Chatbot() {
           <button
             onClick={downloadChatHistory}
             disabled={messages.length === 0 || isLoading}
-            className="rounded-lg p-2 text-white/70 transition-colors hover:bg-white/15 hover:text-white disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent"
+            className="rounded-lg p-2 text-white/80 transition-colors hover:bg-white/15 hover:text-white disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent"
             title={
               messages.length === 0
                 ? 'Belum ada percakapan untuk diunduh'
@@ -673,7 +673,7 @@ export default function Chatbot() {
             <button
               onClick={startNewChat}
               disabled={isLoading || isCreatingNewChat}
-              className="rounded-lg p-2 text-white/70 transition-colors hover:bg-white/15 hover:text-white disabled:opacity-30"
+              className="rounded-lg p-2 text-white/80 transition-colors hover:bg-white/15 hover:text-white disabled:opacity-30"
               title="Chat baru"
               type="button"
             >
@@ -683,7 +683,7 @@ export default function Chatbot() {
 
           <button
             onClick={() => setIsMinimized(true)}
-            className="rounded-lg p-2 text-white/70 transition-colors hover:bg-white/15 hover:text-white"
+            className="rounded-lg p-2 text-white/80 transition-colors hover:bg-white/15 hover:text-white"
             title="Minimize"
             type="button"
           >
@@ -704,10 +704,10 @@ export default function Chatbot() {
       {!visitor ? (
         <form
           onSubmit={startChatWithVisitor}
-          className="flex flex-1 flex-col justify-center gap-3 bg-gradient-to-b from-[#eef8ff] via-white to-[#f7fbff] p-5"
+          className="flex flex-1 flex-col justify-center gap-3 bg-[#f4f8fc] p-5"
         >
           <div className="text-center mb-3">
-            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-[#1689f8] to-[#02afd4] shadow-lg shadow-sky-500/20">
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-[#075da8] shadow-lg shadow-[#063f73]/20">
               <GraduationCap className="h-8 w-8 text-white" />
             </div>
 
@@ -851,7 +851,7 @@ export default function Chatbot() {
             </div>
           )}
 
-          <div className="min-h-0 flex-1 space-y-3 overflow-y-auto bg-gradient-to-b from-[#eef8ff] via-[#f7fbff] to-white p-4">
+          <div className="min-h-0 flex-1 space-y-3 overflow-y-auto bg-[#f4f8fc] p-4">
             {messages.map((message, index) => (
               <div
                 key={message.role + '-' + index}
@@ -866,8 +866,8 @@ export default function Chatbot() {
                   className={
                     'max-w-[85%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed whitespace-pre-line shadow-sm ' +
                     (message.role === 'user'
-                      ? 'rounded-br-sm bg-gradient-to-br from-[#087ee7] to-[#02afd4] text-white shadow-sky-500/20'
-                      : 'rounded-bl-sm border border-sky-100 bg-white text-[#334766] shadow-sky-900/5')
+                      ? 'rounded-br-sm bg-[#075da8] text-white shadow-md shadow-[#063f73]/20'
+                      : 'rounded-bl-sm border border-[#d4e1ee] bg-white text-[#243b53] shadow-sm shadow-[#102a43]/5')
                   }
                 >
                   {message.role === 'assistant'
@@ -879,12 +879,12 @@ export default function Chatbot() {
 
             {isLoading && (
               <div className="flex justify-start">
-                <div className="rounded-2xl rounded-bl-sm border border-sky-100 bg-white px-4 py-3 shadow-sm shadow-sky-900/5">
+                <div className="rounded-2xl rounded-bl-sm border border-[#d4e1ee] bg-white px-4 py-3 shadow-sm shadow-[#102a43]/5">
                   <div className="flex gap-1.5">
                     {[0, 0.15, 0.3].map((delay, i) => (
                       <div
                         key={i}
-                        className="h-2 w-2 animate-bounce rounded-full bg-[#087ee7]"
+                        className="h-2 w-2 animate-bounce rounded-full bg-[#075da8]"
                         style={{
                           animationDelay: String(delay) + 's',
                         }}
@@ -898,7 +898,7 @@ export default function Chatbot() {
             <div ref={messagesEndRef} />
           </div>
 
-          <div className="shrink-0 border-t border-sky-100 bg-white p-3">
+          <div className="shrink-0 border-t border-[#d4e1ee] bg-white p-3">
             <form onSubmit={sendMessage}>
               <div className="flex gap-2 items-center">
                 <input
@@ -907,7 +907,7 @@ export default function Chatbot() {
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   placeholder="Ketik pesan..."
-                  className="flex-1 rounded-xl border border-sky-100 bg-[#f7fbff] px-4 py-2.5 text-sm text-[#11192d] transition-all placeholder:text-slate-400 focus:border-[#087ee7] focus:outline-none focus:ring-2 focus:ring-[#087ee7]/20 disabled:opacity-50"
+                  className="flex-1 rounded-xl border border-[#c6d8ea] bg-[#f8fafc] px-4 py-2.5 text-sm text-[#102a43] transition-all placeholder:text-slate-400 focus:border-[#075da8] focus:outline-none focus:ring-2 focus:ring-[#075da8]/20 disabled:opacity-50"
                 />
 
                 <button
@@ -920,7 +920,7 @@ export default function Chatbot() {
                     !sessionId ||
                     !visitor
                   }
-                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#1689f8] to-[#02afd4] text-white shadow-md shadow-sky-500/20 transition-all hover:-translate-y-0.5 disabled:translate-y-0 disabled:cursor-not-allowed disabled:from-slate-200 disabled:to-slate-200 disabled:shadow-none"
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#075da8] text-white shadow-md shadow-[#063f73]/20 transition-all hover:-translate-y-0.5 hover:bg-[#064f90] disabled:translate-y-0 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:shadow-none"
                   aria-label="Kirim pesan"
                 >
                   <Send className="w-4 h-4" />
@@ -931,7 +931,7 @@ export default function Chatbot() {
             <button
               type="button"
               onClick={requestVisitorDataChange}
-              className="mx-auto mt-2 block text-[11px] font-medium text-[#087ee7] hover:text-[#11192d]"
+              className="mx-auto mt-2 block text-[11px] font-semibold text-[#075da8] hover:text-[#062b55]"
             >
               Ganti data pengguna
             </button>
