@@ -689,7 +689,7 @@ export default function Chatbot() {
           >
             <Minimize2 className="w-4 h-4" />
           </button>
-
+{/* 
           <button
             onClick={() => setIsOpen(false)}
             className="rounded-lg p-2 text-white/70 transition-colors hover:bg-white/15 hover:text-white"
@@ -697,7 +697,7 @@ export default function Chatbot() {
             type="button"
           >
             <X className="w-4 h-4" />
-          </button>
+          </button> */}
         </div>
       </div>
 
