@@ -582,23 +582,29 @@ export default function Chatbot() {
   if (!isOpen || isMinimized) {
     return (
       <div className="fixed bottom-6 right-6 z-50 flex items-end gap-3">
-        <div className="relative max-w-[190px] rounded-[26px] border border-sky-100 bg-white px-4 py-3 text-right shadow-xl shadow-sky-900/12">
-          <span className="absolute -right-1 bottom-5 h-4 w-4 rotate-45 border-r border-t border-sky-100 bg-white" />
-          <p className="relative text-[11px] font-bold uppercase tracking-normal text-[#087ee7]">
-            Fitur Baru
-          </p>
-          <p className="relative mt-0.5 text-sm font-extrabold leading-snug text-[#11192d]">
-            Coba Chatbot PMB UBL yuk
-          </p>
-        </div>
+        {!isMinimized && (
+          <div className="relative max-w-[190px] rounded-[26px] border border-sky-100 bg-white px-4 py-3 text-right shadow-xl shadow-sky-900/12">
+            <span className="absolute -right-1 bottom-5 h-4 w-4 rotate-45 border-r border-t border-sky-100 bg-white" />
+            <p className="relative text-[11px] font-bold uppercase tracking-normal text-[#087ee7]">
+              Fitur Baru
+            </p>
+            <p className="relative mt-0.5 text-sm font-extrabold leading-snug text-[#11192d]">
+              Coba Chatbot PMB UBL yuk
+            </p>
+          </div>
+        )}
 
         <button
           onClick={() => {
             setIsOpen(true);
             setIsMinimized(false);
           }}
-          className="relative flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-[#1689f8] via-[#087ee7] to-[#02afd4] text-white shadow-2xl shadow-sky-500/30 ring-4 ring-white/90 transition-all duration-200 hover:-translate-y-0.5 hover:scale-105"
-          aria-label="Buka chat"
+          className={
+            'relative flex items-center justify-center rounded-full bg-gradient-to-br from-[#1689f8] via-[#087ee7] to-[#02afd4] text-white shadow-2xl shadow-sky-500/30 ring-4 ring-white/90 transition-all duration-200 hover:-translate-y-0.5 hover:scale-105 ' +
+            (isMinimized ? 'h-14 w-14' : 'h-16 w-16')
+          }
+          aria-label={isMinimized ? 'Lanjutkan chat' : 'Buka chat'}
+          title={isMinimized ? 'Lanjutkan chat' : 'Buka chat'}
           type="button"
         >
           <span className="absolute -left-1 -top-1 flex h-6 min-w-6 items-center justify-center rounded-full bg-[#ff8a05] px-1.5 text-[10px] font-extrabold text-white shadow-lg shadow-orange-500/30">
@@ -606,9 +612,9 @@ export default function Chatbot() {
           </span>
           <MessageCircle className="h-7 w-7" />
 
-          {isMinimized && messages.length > 0 && (
-            <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-[#ff7400] text-xs font-bold text-white">
-              {messages.length}
+          {isMinimized && (
+            <span className="absolute -right-2 -top-2 flex min-h-5 min-w-5 items-center justify-center rounded-full bg-[#ff7400] px-1 text-[10px] font-bold text-white shadow-md shadow-orange-500/30">
+              {messages.length > 99 ? '99+' : messages.length}
             </span>
           )}
         </button>
