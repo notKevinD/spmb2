@@ -69,7 +69,7 @@ function cleanUrl(url: string) {
 
 function renderMessageWithLinks(text: string, keyPrefix = 'message') {
   const combinedRegex =
-    /(https?:\/\/[^\s]+|www\.[^\s]+|(\+62|62|0)[0-9][0-9\s-]{7,15}[0-9])/g;
+    /(https?:\/\/[^\s]+|www\.[^\s]+|(\+62|62|0)[0-9][0-9\s-]{7,18}[0-9])/g;
 
   const elements: ReactNode[] = [];
   let lastIndex = 0;
@@ -109,17 +109,25 @@ function renderMessageWithLinks(text: string, keyPrefix = 'message') {
         elements.push(trailing);
       }
     } else {
+      const urlData = cleanUrl(matchedText);
+      const clean = urlData.clean;
+      const trailing = urlData.trailing;
+
       elements.push(
         <a
           key={`${keyPrefix}-phone-${match.index}`}
-          href={formatWhatsAppLink(matchedText)}
+          href={formatWhatsAppLink(clean)}
           target="_blank"
           rel="noopener noreferrer"
           className="text-blue-600 underline font-medium"
         >
-          {matchedText}
+          {clean}
         </a>
       );
+
+      if (trailing) {
+        elements.push(trailing);
+      }
     }
 
     lastIndex = match.index + matchedText.length;
