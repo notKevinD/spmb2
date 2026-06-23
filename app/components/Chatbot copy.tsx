@@ -15,9 +15,6 @@ import {
 type Message = {
   role: 'user' | 'assistant';
   content: string;
-  sentAt?: string;
-  receivedAt?: string;
-  pairId?: string;
 };
 
 type Visitor = {
@@ -37,21 +34,6 @@ const VISITOR_STORAGE_KEY = 'pmb_chat_visitor';
 
 function getChatHistoryKey(sessionId: string) {
   return `pmb_chat_history_${sessionId}`;
-}
-
-function formatDateTime(value?: string) {
-  if (!value) return '-';
-
-  return new Intl.DateTimeFormat('id-ID', {
-    dateStyle: 'short',
-    timeStyle: 'medium',
-    timeZone: 'Asia/Jakarta',
-  }).format(new Date(value));
-}
-
-function escapeCsv(value: unknown) {
-  const text = String(value ?? '');
-  return `"${text.replace(/"/g, '""')}"`;
 }
 
 function formatWhatsAppLink(phone: string) {
@@ -368,7 +350,6 @@ export default function Chatbot() {
         {
           role: 'assistant',
           content: `Halo ${data.visitor.name}! Ada yang bisa saya bantu seputar PMB UBL?`,
-          receivedAt: new Date().toISOString(),
         },
       ];
 
@@ -398,13 +379,6 @@ export default function Chatbot() {
     if (!input.trim() || isLoading || !sessionId || !visitor) return;
 
     const userMessage = input.trim();
-    const pairId =
-      typeof crypto !== 'undefined' && 'randomUUID' in crypto
-        ? crypto.randomUUID()
-        : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
-
-    const sentAt = new Date();
-    const sentAtIso = sentAt.toISOString();
 
     setInput('');
     setNotice(null);
@@ -414,8 +388,6 @@ export default function Chatbot() {
       {
         role: 'user',
         content: userMessage,
-        sentAt: sentAtIso,
-        pairId,
       },
     ]);
 
@@ -431,12 +403,10 @@ export default function Chatbot() {
           message: userMessage,
           sessionId,
           visitor,
-          sentAt: sentAtIso,
         }),
       });
 
       const data = await res.json();
-      const receivedAtIso = new Date().toISOString();
 
       if (!res.ok || !data.success) {
         throw new Error(data.error || 'Pesan tidak dapat dikirim.');
@@ -447,9 +417,6 @@ export default function Chatbot() {
         {
           role: 'assistant',
           content: data.response || 'Maaf, tidak ada respons dari sistem.',
-          sentAt: sentAtIso,
-          receivedAt: receivedAtIso,
-          pairId,
         },
       ]);
 
@@ -457,24 +424,17 @@ export default function Chatbot() {
         setSessionId(data.sessionId);
       }
     } catch (error) {
-      const receivedAtIso = new Date().toISOString();
-
       console.error('Gagal mengirim pesan:', error);
-
       setNotice({
         title: 'Pesan belum terkirim',
         message:
           'Pesan Anda belum berhasil dikirim. Periksa koneksi internet, lalu kirim kembali pesan tersebut.',
       });
-
       setMessages((prev) => [
         ...prev,
         {
           role: 'assistant',
           content: 'Maaf, terjadi kesalahan. Silakan coba lagi.',
-          sentAt: sentAtIso,
-          receivedAt: receivedAtIso,
-          pairId,
         },
       ]);
     } finally {
@@ -521,7 +481,6 @@ export default function Chatbot() {
         {
           role: 'assistant',
           content: `Percakapan baru dimulai. Ada yang bisa saya bantu lagi, ${visitor.name}?`,
-          receivedAt: new Date().toISOString(),
         },
       ];
 
@@ -575,42 +534,41 @@ export default function Chatbot() {
   const downloadChatHistory = () => {
     if (messages.length === 0) return;
 
-    const rows = [
-      [
-        'No',
-        'Session ID',
-        'Nama',
-        'Nomor WhatsApp',
-        'Asal Sekolah',
-        'Role',
-        'Pesan',
-        'Waktu Kirim',
-        'Waktu Terima',
-        'Pair ID',
-      ],
-    ];
+    const downloadedAt = new Intl.DateTimeFormat('id-ID', {
+      dateStyle: 'full',
+      timeStyle: 'medium',
+      timeZone: 'Asia/Jakarta',
+    }).format(new Date());
 
-    messages.forEach((message, index) => {
-      rows.push([
-        String(index + 1),
-        sessionId || '-',
-        visitor?.name || '-',
-        visitor?.phone || '-',
-        visitor?.school || '-',
-        message.role === 'user' ? 'Pengguna' : 'Chatbot',
-        message.content.replace(/\*\*([\s\S]*?)\*\*/g, '$1'),
-        formatDateTime(message.sentAt),
-        formatDateTime(message.receivedAt),
-        message.pairId || '-',
-      ]);
-    });
+    const visitorInfo = visitor
+      ? [
+          `Nama: ${visitor.name}`,
+          `Nomor WhatsApp: ${visitor.phone}`,
+          `Asal sekolah: ${visitor.school}`,
+        ].join('\n')
+      : 'Data calon mahasiswa: -';
 
-    const csvContent = rows
-      .map((row) => row.map(escapeCsv).join(','))
-      .join('\n');
+    const conversation = messages
+      .map((message, index) => {
+        const sender = message.role === 'user' ? 'Pengguna' : 'Chatbot';
+        const content = message.content.replace(/\*\*([\s\S]*?)\*\*/g, '$1');
 
-    const blob = new Blob(['\uFEFF', csvContent], {
-      type: 'text/csv;charset=utf-8',
+        return `${index + 1}. ${sender}\n${content}`;
+      })
+      .join('\n\n');
+
+    const fileContent = [
+      'RIWAYAT PERCAKAPAN PMB UBL',
+      `Waktu unduh: ${downloadedAt} WIB`,
+      `Session ID: ${sessionId || '-'}`,
+      '',
+      visitorInfo,
+      '',
+      conversation,
+    ].join('\n');
+
+    const blob = new Blob(['\uFEFF', fileContent], {
+      type: 'text/plain;charset=utf-8',
     });
 
     const url = URL.createObjectURL(blob);
@@ -620,7 +578,7 @@ export default function Chatbot() {
     const shortSession = sessionId?.slice(0, 8) || 'tanpa-session';
 
     link.href = url;
-    link.download = `riwayat-chat-ubl-${date}-${shortSession}.csv`;
+    link.download = `riwayat-chat-ubl-${date}-${shortSession}.txt`;
 
     document.body.appendChild(link);
     link.click();
@@ -739,6 +697,15 @@ export default function Chatbot() {
           >
             <Minimize2 className="w-4 h-4" />
           </button>
+{/* 
+          <button
+            onClick={() => setIsOpen(false)}
+            className="rounded-lg p-2 text-white/70 transition-colors hover:bg-white/15 hover:text-white"
+            title="Tutup"
+            type="button"
+          >
+            <X className="w-4 h-4" />
+          </button> */}
         </div>
       </div>
 
