@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { useState, useEffect, useRef, type ReactNode } from 'react';
+import { useState, useEffect, useRef, type ReactNode } from "react";
 import {
   MessageCircle,
   X,
@@ -10,10 +10,10 @@ import {
   Minimize2,
   Download,
   GraduationCap,
-} from 'lucide-react';
+} from "lucide-react";
 
 type Message = {
-  role: 'user' | 'assistant';
+  role: "user" | "assistant";
   content: string;
   sentAt?: string;
   receivedAt?: string;
@@ -31,41 +31,41 @@ type ChatNotice = {
   message: string;
 };
 
-type ConfirmationAction = 'new-chat' | 'change-user';
+type ConfirmationAction = "new-chat" | "change-user";
 
-const VISITOR_STORAGE_KEY = 'pmb_chat_visitor';
+const VISITOR_STORAGE_KEY = "pmb_chat_visitor";
 
 function getChatHistoryKey(sessionId: string) {
   return `pmb_chat_history_${sessionId}`;
 }
 
 function formatDateTime(value?: string) {
-  if (!value) return '-';
+  if (!value) return "-";
 
-  return new Intl.DateTimeFormat('id-ID', {
-    dateStyle: 'short',
-    timeStyle: 'medium',
-    timeZone: 'Asia/Jakarta',
+  return new Intl.DateTimeFormat("id-ID", {
+    dateStyle: "short",
+    timeStyle: "medium",
+    timeZone: "Asia/Jakarta",
   }).format(new Date(value));
 }
 
 function escapeCsv(value: unknown) {
-  const text = String(value ?? '');
+  const text = String(value ?? "");
   return `"${text.replace(/"/g, '""')}"`;
 }
 
 function formatWhatsAppLink(phone: string) {
-  let number = phone.replace(/\D/g, '');
+  let number = phone.replace(/\D/g, "");
 
-  if (number.startsWith('0')) {
-    number = '62' + number.slice(1);
+  if (number.startsWith("0")) {
+    number = "62" + number.slice(1);
   }
 
-  if (number.startsWith('620')) {
-    number = '62' + number.slice(3);
+  if (number.startsWith("620")) {
+    number = "62" + number.slice(3);
   }
 
-  return 'https://wa.me/' + number;
+  return "https://wa.me/" + number;
 }
 
 function cleanUrl(url: string) {
@@ -75,7 +75,7 @@ function cleanUrl(url: string) {
   if (!match) {
     return {
       clean: url,
-      trailing: '',
+      trailing: "",
     };
   }
 
@@ -85,7 +85,7 @@ function cleanUrl(url: string) {
   };
 }
 
-function renderMessageWithLinks(text: string, keyPrefix = 'message') {
+function renderMessageWithLinks(text: string, keyPrefix = "message") {
   const combinedRegex =
     /(https?:\/\/[^\s]+|www\.[^\s]+|(\+62|62|0)[0-9][0-9\s-]{7,18}[0-9])/g;
 
@@ -101,15 +101,15 @@ function renderMessageWithLinks(text: string, keyPrefix = 'message') {
     }
 
     const isUrl =
-      matchedText.startsWith('http://') ||
-      matchedText.startsWith('https://') ||
-      matchedText.startsWith('www.');
+      matchedText.startsWith("http://") ||
+      matchedText.startsWith("https://") ||
+      matchedText.startsWith("www.");
 
     if (isUrl) {
       const urlData = cleanUrl(matchedText);
       const clean = urlData.clean;
       const trailing = urlData.trailing;
-      const href = clean.startsWith('www.') ? 'https://' + clean : clean;
+      const href = clean.startsWith("www.") ? "https://" + clean : clean;
 
       elements.push(
         <a
@@ -120,7 +120,7 @@ function renderMessageWithLinks(text: string, keyPrefix = 'message') {
           className="text-blue-600 underline font-medium break-all"
         >
           {clean}
-        </a>
+        </a>,
       );
 
       if (trailing) {
@@ -140,7 +140,7 @@ function renderMessageWithLinks(text: string, keyPrefix = 'message') {
           className="text-blue-600 underline font-medium"
         >
           {clean}
-        </a>
+        </a>,
       );
 
       if (trailing) {
@@ -169,8 +169,8 @@ function renderAssistantMessage(text: string) {
       elements.push(
         ...renderMessageWithLinks(
           text.slice(lastIndex, match.index),
-          `plain-${lastIndex}`
-        )
+          `plain-${lastIndex}`,
+        ),
       );
     }
 
@@ -180,7 +180,7 @@ function renderAssistantMessage(text: string) {
         className="font-semibold text-gray-900"
       >
         {renderMessageWithLinks(match[1], `bold-${match.index}`)}
-      </strong>
+      </strong>,
     );
 
     lastIndex = match.index + match[0].length;
@@ -188,7 +188,7 @@ function renderAssistantMessage(text: string) {
 
   if (lastIndex < text.length) {
     elements.push(
-      ...renderMessageWithLinks(text.slice(lastIndex), `plain-${lastIndex}`)
+      ...renderMessageWithLinks(text.slice(lastIndex), `plain-${lastIndex}`),
     );
   }
 
@@ -199,8 +199,8 @@ function getUserFacingErrorMessage(error: unknown, fallback: string) {
   if (
     error instanceof Error &&
     [
-      'Nama, nomor WhatsApp, dan asal sekolah wajib diisi.',
-      'Nomor WhatsApp tidak valid.',
+      "Nama, nomor WhatsApp, dan asal sekolah wajib diisi.",
+      "Nomor WhatsApp tidak valid.",
     ].includes(error.message)
   ) {
     return error.message;
@@ -214,7 +214,7 @@ export default function Chatbot() {
   const [isMinimized, setIsMinimized] = useState(false);
 
   const [messages, setMessages] = useState<Message[]>([]);
-  const [input, setInput] = useState('');
+  const [input, setInput] = useState("");
 
   const [isLoading, setIsLoading] = useState(false);
   const [isStartingChat, setIsStartingChat] = useState(false);
@@ -223,9 +223,9 @@ export default function Chatbot() {
   const [visitor, setVisitor] = useState<Visitor | null>(null);
 
   const [visitorForm, setVisitorForm] = useState({
-    name: '',
-    phone: '',
-    school: '',
+    name: "",
+    phone: "",
+    school: "",
   });
 
   const [confirmationAction, setConfirmationAction] =
@@ -240,7 +240,7 @@ export default function Chatbot() {
 
   useEffect(() => {
     if (isOpen && messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [messages, isOpen]);
 
@@ -266,8 +266,8 @@ export default function Chatbot() {
           }
         }
 
-        const res = await fetch('/api/chat/session', {
-          method: 'GET',
+        const res = await fetch("/api/chat/session", {
+          method: "GET",
         });
 
         const data = await res.json();
@@ -276,17 +276,17 @@ export default function Chatbot() {
           setSessionId(data.sessionId);
         } else {
           setNotice({
-            title: 'Sesi chat belum siap',
+            title: "Sesi chat belum siap",
             message:
-              'Koneksi ke layanan chat belum berhasil dibuat. Coba muat ulang halaman sebelum memulai percakapan.',
+              "Koneksi ke layanan chat belum berhasil dibuat. Coba muat ulang halaman sebelum memulai percakapan.",
           });
         }
       } catch (error) {
-        console.error('Gagal membaca session:', error);
+        console.error("Gagal membaca session:", error);
         setNotice({
-          title: 'Sesi chat belum siap',
+          title: "Sesi chat belum siap",
           message:
-            'Koneksi ke layanan chat bermasalah. Periksa koneksi internet Anda, lalu muat ulang halaman.',
+            "Koneksi ke layanan chat bermasalah. Periksa koneksi internet Anda, lalu muat ulang halaman.",
         });
         sessionInitializedRef.current = false;
       }
@@ -318,7 +318,10 @@ export default function Chatbot() {
   useEffect(() => {
     if (!sessionId || !hasLoadedHistoryRef.current) return;
 
-    localStorage.setItem(getChatHistoryKey(sessionId), JSON.stringify(messages));
+    localStorage.setItem(
+      getChatHistoryKey(sessionId),
+      JSON.stringify(messages),
+    );
   }, [messages, sessionId]);
 
   const startChatWithVisitor = async (e: React.FormEvent) => {
@@ -330,9 +333,9 @@ export default function Chatbot() {
 
     if (!name || !phone || !school) {
       setNotice({
-        title: 'Data belum lengkap',
+        title: "Data belum lengkap",
         message:
-          'Isi nama lengkap, nomor WhatsApp, dan asal sekolah sebelum memulai chat.',
+          "Isi nama lengkap, nomor WhatsApp, dan asal sekolah sebelum memulai chat.",
       });
       return;
     }
@@ -341,10 +344,10 @@ export default function Chatbot() {
     setIsStartingChat(true);
 
     try {
-      const res = await fetch('/api/chat/start', {
-        method: 'POST',
+      const res = await fetch("/api/chat/start", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ name, phone, school }),
       });
@@ -352,21 +355,18 @@ export default function Chatbot() {
       const data = await res.json();
 
       if (!res.ok || !data.success) {
-        throw new Error(data.error || 'Gagal memulai chat.');
+        throw new Error(data.error || "Gagal memulai chat.");
       }
 
       setSessionId(data.sessionId);
       setVisitor(data.visitor);
       hasLoadedHistoryRef.current = true;
 
-      localStorage.setItem(
-        VISITOR_STORAGE_KEY,
-        JSON.stringify(data.visitor)
-      );
+      localStorage.setItem(VISITOR_STORAGE_KEY, JSON.stringify(data.visitor));
 
       const openingMessages: Message[] = [
         {
-          role: 'assistant',
+          role: "assistant",
           content: `Halo ${data.visitor.name}! Ada yang bisa saya bantu seputar PMB UBL?`,
           receivedAt: new Date().toISOString(),
         },
@@ -376,15 +376,15 @@ export default function Chatbot() {
 
       localStorage.setItem(
         getChatHistoryKey(data.sessionId),
-        JSON.stringify(openingMessages)
+        JSON.stringify(openingMessages),
       );
     } catch (error) {
-      console.error('Gagal memulai chat:', error);
+      console.error("Gagal memulai chat:", error);
       setNotice({
-        title: 'Chat belum dapat dimulai',
+        title: "Chat belum dapat dimulai",
         message: getUserFacingErrorMessage(
           error,
-          'Layanan pendaftaran sedang tidak dapat dihubungi. Silakan coba lagi beberapa saat lagi.'
+          "Layanan pendaftaran sedang tidak dapat dihubungi. Silakan coba lagi beberapa saat lagi.",
         ),
       });
     } finally {
@@ -399,20 +399,20 @@ export default function Chatbot() {
 
     const userMessage = input.trim();
     const pairId =
-      typeof crypto !== 'undefined' && 'randomUUID' in crypto
+      typeof crypto !== "undefined" && "randomUUID" in crypto
         ? crypto.randomUUID()
         : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 
     const sentAt = new Date();
     const sentAtIso = sentAt.toISOString();
 
-    setInput('');
+    setInput("");
     setNotice(null);
 
     setMessages((prev) => [
       ...prev,
       {
-        role: 'user',
+        role: "user",
         content: userMessage,
         sentAt: sentAtIso,
         pairId,
@@ -422,10 +422,10 @@ export default function Chatbot() {
     setIsLoading(true);
 
     try {
-      const res = await fetch('/api/chat', {
-        method: 'POST',
+      const res = await fetch("/api/chat", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           message: userMessage,
@@ -439,14 +439,14 @@ export default function Chatbot() {
       const receivedAtIso = new Date().toISOString();
 
       if (!res.ok || !data.success) {
-        throw new Error(data.error || 'Pesan tidak dapat dikirim.');
+        throw new Error(data.error || "Pesan tidak dapat dikirim.");
       }
 
       setMessages((prev) => [
         ...prev,
         {
-          role: 'assistant',
-          content: data.response || 'Maaf, tidak ada respons dari sistem.',
+          role: "assistant",
+          content: data.response || "Maaf, tidak ada respons dari sistem.",
           sentAt: sentAtIso,
           receivedAt: receivedAtIso,
           pairId,
@@ -459,19 +459,19 @@ export default function Chatbot() {
     } catch (error) {
       const receivedAtIso = new Date().toISOString();
 
-      console.error('Gagal mengirim pesan:', error);
+      console.error("Gagal mengirim pesan:", error);
 
       setNotice({
-        title: 'Pesan belum terkirim',
+        title: "Pesan belum terkirim",
         message:
-          'Pesan Anda belum berhasil dikirim. Periksa koneksi internet, lalu kirim kembali pesan tersebut.',
+          "Pesan Anda belum berhasil dikirim. Periksa koneksi internet, lalu kirim kembali pesan tersebut.",
       });
 
       setMessages((prev) => [
         ...prev,
         {
-          role: 'assistant',
-          content: 'Maaf, terjadi kesalahan. Silakan coba lagi.',
+          role: "assistant",
+          content: "Maaf, terjadi kesalahan. Silakan coba lagi.",
           sentAt: sentAtIso,
           receivedAt: receivedAtIso,
           pairId,
@@ -486,7 +486,7 @@ export default function Chatbot() {
     if (!visitor || isLoading || isCreatingNewChat) return;
 
     setNotice(null);
-    setConfirmationAction('new-chat');
+    setConfirmationAction("new-chat");
   };
 
   const confirmNewChat = async () => {
@@ -496,10 +496,10 @@ export default function Chatbot() {
     setIsCreatingNewChat(true);
 
     try {
-      const res = await fetch('/api/chat/new-session', {
-        method: 'POST',
+      const res = await fetch("/api/chat/new-session", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ visitor }),
       });
@@ -507,7 +507,7 @@ export default function Chatbot() {
       const data = await res.json();
 
       if (!res.ok || !data.success) {
-        throw new Error(data.error || 'Gagal membuat session baru.');
+        throw new Error(data.error || "Gagal membuat session baru.");
       }
 
       if (sessionId) {
@@ -519,7 +519,7 @@ export default function Chatbot() {
 
       const newMessages: Message[] = [
         {
-          role: 'assistant',
+          role: "assistant",
           content: `Percakapan baru dimulai. Ada yang bisa saya bantu lagi, ${visitor.name}?`,
           receivedAt: new Date().toISOString(),
         },
@@ -529,15 +529,15 @@ export default function Chatbot() {
 
       localStorage.setItem(
         getChatHistoryKey(data.sessionId),
-        JSON.stringify(newMessages)
+        JSON.stringify(newMessages),
       );
     } catch (error) {
-      console.error('Gagal memulai chat baru:', error);
+      console.error("Gagal memulai chat baru:", error);
       setNotice({
-        title: 'Chat baru belum dibuat',
+        title: "Chat baru belum dibuat",
         message: getUserFacingErrorMessage(
           error,
-          'Riwayat chat tetap tersimpan. Silakan coba buat chat baru beberapa saat lagi.'
+          "Riwayat chat tetap tersimpan. Silakan coba buat chat baru beberapa saat lagi.",
         ),
       });
     } finally {
@@ -557,9 +557,9 @@ export default function Chatbot() {
     setSessionId(null);
     setMessages([]);
     setVisitorForm({
-      name: '',
-      phone: '',
-      school: '',
+      name: "",
+      phone: "",
+      school: "",
     });
 
     hasLoadedHistoryRef.current = false;
@@ -569,7 +569,7 @@ export default function Chatbot() {
     if (isCreatingNewChat) return;
 
     setNotice(null);
-    setConfirmationAction('change-user');
+    setConfirmationAction("change-user");
   };
 
   const downloadChatHistory = () => {
@@ -577,47 +577,45 @@ export default function Chatbot() {
 
     const rows = [
       [
-        'No',
-        'Session ID',
-        'Nama',
-        'Nomor WhatsApp',
-        'Asal Sekolah',
-        'Role',
-        'Pesan',
-        'Waktu Kirim',
-        'Waktu Terima',
-        'Pair ID',
+        "No",
+        "Session ID",
+        "Nama",
+        "Nomor WhatsApp",
+        "Asal Sekolah",
+        "Role",
+        "Pesan",
+        "Waktu Kirim",
+        "Waktu Terima",
+        "Pair ID",
       ],
     ];
 
     messages.forEach((message, index) => {
       rows.push([
         String(index + 1),
-        sessionId || '-',
-        visitor?.name || '-',
-        visitor?.phone || '-',
-        visitor?.school || '-',
-        message.role === 'user' ? 'Pengguna' : 'Chatbot',
-        message.content.replace(/\*\*([\s\S]*?)\*\*/g, '$1'),
+        sessionId || "-",
+        visitor?.name || "-",
+        visitor?.phone || "-",
+        visitor?.school || "-",
+        message.role === "user" ? "Pengguna" : "Chatbot",
+        message.content.replace(/\*\*([\s\S]*?)\*\*/g, "$1"),
         formatDateTime(message.sentAt),
         formatDateTime(message.receivedAt),
-        message.pairId || '-',
+        message.pairId || "-",
       ]);
     });
 
-    const csvContent = rows
-      .map((row) => row.map(escapeCsv).join(','))
-      .join('\n');
+    const csvContent =
+      "sep=;\n" + rows.map((row) => row.map(escapeCsv).join(";")).join("\n");
 
-    const blob = new Blob(['\uFEFF', csvContent], {
-      type: 'text/csv;charset=utf-8',
+    const blob = new Blob(["\uFEFF", csvContent], {
+      type: "text/csv;charset=utf-8",
     });
-
     const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
+    const link = document.createElement("a");
 
     const date = new Date().toISOString().slice(0, 10);
-    const shortSession = sessionId?.slice(0, 8) || 'tanpa-session';
+    const shortSession = sessionId?.slice(0, 8) || "tanpa-session";
 
     link.href = url;
     link.download = `riwayat-chat-ubl-${date}-${shortSession}.csv`;
@@ -650,11 +648,11 @@ export default function Chatbot() {
             setIsMinimized(false);
           }}
           className={
-            'relative flex items-center justify-center rounded-full bg-[#075da8] text-white shadow-xl shadow-[#063f73]/30 ring-4 ring-white/95 transition-all duration-200 hover:-translate-y-0.5 hover:scale-105 hover:bg-[#064f90] ' +
-            (isMinimized ? 'h-14 w-14' : 'h-16 w-16')
+            "relative flex items-center justify-center rounded-full bg-[#075da8] text-white shadow-xl shadow-[#063f73]/30 ring-4 ring-white/95 transition-all duration-200 hover:-translate-y-0.5 hover:scale-105 hover:bg-[#064f90] " +
+            (isMinimized ? "h-14 w-14" : "h-16 w-16")
           }
-          aria-label={isMinimized ? 'Lanjutkan chat' : 'Buka chat'}
-          title={isMinimized ? 'Lanjutkan chat' : 'Buka chat'}
+          aria-label={isMinimized ? "Lanjutkan chat" : "Buka chat"}
+          title={isMinimized ? "Lanjutkan chat" : "Buka chat"}
           type="button"
         >
           <span className="absolute -left-1 -top-1 flex h-6 min-w-6 items-center justify-center rounded-full border-2 border-white bg-[#f5a623] px-1.5 text-[10px] font-extrabold text-[#083b6f] shadow-lg shadow-orange-500/25">
@@ -664,7 +662,7 @@ export default function Chatbot() {
 
           {isMinimized && (
             <span className="absolute -right-2 -top-2 flex min-h-5 min-w-5 items-center justify-center rounded-full bg-[#ff7400] px-1 text-[10px] font-bold text-white shadow-md shadow-orange-500/30">
-              {messages.length > 99 ? '99+' : messages.length}
+              {messages.length > 99 ? "99+" : messages.length}
             </span>
           )}
         </button>
@@ -676,10 +674,10 @@ export default function Chatbot() {
     <div
       className="fixed z-50 flex flex-col overflow-hidden rounded-2xl border border-[#c6d8ea] bg-white shadow-2xl shadow-[#102a43]/25"
       style={{
-        bottom: '24px',
-        right: '24px',
-        width: 'min(420px, calc(100vw - 48px))',
-        height: 'min(620px, calc(100vh - 120px))',
+        bottom: "24px",
+        right: "24px",
+        width: "min(420px, calc(100vw - 48px))",
+        height: "min(620px, calc(100vh - 120px))",
       }}
     >
       <div className="relative flex shrink-0 items-center justify-between overflow-hidden border-b-4 border-[#f5a623] bg-gradient-to-r from-[#062b55] via-[#075da8] to-[#0878bd] px-4 py-3.5">
@@ -697,8 +695,8 @@ export default function Chatbot() {
             </div>
             <p className="truncate text-xs font-medium text-white/80">
               {visitor
-                ? visitor.name + ' - ' + visitor.school
-                : 'Universitas Bandar Lampung'}
+                ? visitor.name + " - " + visitor.school
+                : "Universitas Bandar Lampung"}
             </p>
           </div>
         </div>
@@ -710,8 +708,8 @@ export default function Chatbot() {
             className="rounded-lg p-2 text-white/80 transition-colors hover:bg-white/15 hover:text-white disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent"
             title={
               messages.length === 0
-                ? 'Belum ada percakapan untuk diunduh'
-                : 'Unduh riwayat percakapan'
+                ? "Belum ada percakapan untuk diunduh"
+                : "Unduh riwayat percakapan"
             }
             aria-label="Unduh riwayat percakapan"
             type="button"
@@ -809,7 +807,7 @@ export default function Chatbot() {
             disabled={isStartingChat}
             className="mt-2 rounded-xl bg-gradient-to-r from-[#1689f8] to-[#02afd4] py-2.5 text-sm font-extrabold text-white shadow-lg shadow-sky-500/20 transition-transform hover:-translate-y-0.5 disabled:translate-y-0 disabled:cursor-not-allowed disabled:from-slate-300 disabled:to-slate-300 disabled:shadow-none"
           >
-            {isStartingChat ? 'Memulai chat...' : 'Mulai Chat'}
+            {isStartingChat ? "Memulai chat..." : "Mulai Chat"}
           </button>
 
           <p className="mt-2 text-center text-[11px] leading-relaxed text-[#334766]/70">
@@ -836,17 +834,17 @@ export default function Chatbot() {
                       id="new-chat-confirm-title"
                       className="text-sm font-bold text-[#11192d]"
                     >
-                      {confirmationAction === 'new-chat'
-                        ? 'Buat chat baru?'
-                        : 'Ganti data pengguna?'}
+                      {confirmationAction === "new-chat"
+                        ? "Buat chat baru?"
+                        : "Ganti data pengguna?"}
                     </h4>
                     <p
                       id="new-chat-confirm-message"
                       className="mt-1 text-xs leading-relaxed text-[#334766]"
                     >
-                      {confirmationAction === 'new-chat'
-                        ? 'Riwayat percakapan saat ini tidak dapat dilihat lagi setelah chat baru dibuat.'
-                        : 'Data pengguna dan riwayat percakapan saat ini akan dihapus dari perangkat ini.'}
+                      {confirmationAction === "new-chat"
+                        ? "Riwayat percakapan saat ini tidak dapat dilihat lagi setelah chat baru dibuat."
+                        : "Data pengguna dan riwayat percakapan saat ini akan dihapus dari perangkat ini."}
                     </p>
                   </div>
                 </div>
@@ -862,7 +860,7 @@ export default function Chatbot() {
                   <button
                     type="button"
                     onClick={
-                      confirmationAction === 'new-chat'
+                      confirmationAction === "new-chat"
                         ? confirmNewChat
                         : () => {
                             resetVisitorData();
@@ -873,10 +871,10 @@ export default function Chatbot() {
                     className="rounded-lg bg-[#087ee7] px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-[#056bc4] disabled:cursor-not-allowed disabled:bg-slate-300"
                   >
                     {isCreatingNewChat
-                      ? 'Membuat chat...'
-                      : confirmationAction === 'new-chat'
-                        ? 'Ya, buat chat baru'
-                        : 'Ya, ganti data'}
+                      ? "Membuat chat..."
+                      : confirmationAction === "new-chat"
+                        ? "Ya, buat chat baru"
+                        : "Ya, ganti data"}
                   </button>
                 </div>
               </div>
@@ -895,23 +893,21 @@ export default function Chatbot() {
           <div className="min-h-0 flex-1 space-y-3 overflow-y-auto bg-[#f4f8fc] p-4">
             {messages.map((message, index) => (
               <div
-                key={message.role + '-' + index}
+                key={message.role + "-" + index}
                 className={
-                  'flex ' +
-                  (message.role === 'user'
-                    ? 'justify-end'
-                    : 'justify-start')
+                  "flex " +
+                  (message.role === "user" ? "justify-end" : "justify-start")
                 }
               >
                 <div
                   className={
-                    'max-w-[85%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed whitespace-pre-line shadow-sm ' +
-                    (message.role === 'user'
-                      ? 'rounded-br-sm bg-[#075da8] text-white shadow-md shadow-[#063f73]/20'
-                      : 'rounded-bl-sm border border-[#d4e1ee] bg-white text-[#243b53] shadow-sm shadow-[#102a43]/5')
+                    "max-w-[85%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed whitespace-pre-line shadow-sm " +
+                    (message.role === "user"
+                      ? "rounded-br-sm bg-[#075da8] text-white shadow-md shadow-[#063f73]/20"
+                      : "rounded-bl-sm border border-[#d4e1ee] bg-white text-[#243b53] shadow-sm shadow-[#102a43]/5")
                   }
                 >
-                  {message.role === 'assistant'
+                  {message.role === "assistant"
                     ? renderAssistantMessage(message.content)
                     : message.content}
                 </div>
@@ -927,7 +923,7 @@ export default function Chatbot() {
                         key={i}
                         className="h-2 w-2 animate-bounce rounded-full bg-[#075da8]"
                         style={{
-                          animationDelay: String(delay) + 's',
+                          animationDelay: String(delay) + "s",
                         }}
                       />
                     ))}
