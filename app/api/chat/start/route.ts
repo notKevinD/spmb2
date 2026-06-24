@@ -93,7 +93,7 @@ export async function POST(req: NextRequest) {
         Accept: 'application/json',
       },
       body: JSON.stringify({
-        eventType: 'chat_start_session',
+        eventType: 'chat_new_session',
         sessionId,
         visitor,
         timestamp: new Date().toISOString(),
