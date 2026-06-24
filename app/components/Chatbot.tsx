@@ -637,7 +637,7 @@ export default function Chatbot() {
               Fitur Baru
             </p>
             <p className="relative mt-0.5 text-sm font-extrabold leading-snug text-[#11192d]">
-              Coba Chatbot PMB UBL yuk
+              Tanya AI
             </p>
           </div>
         )}
@@ -690,7 +690,7 @@ export default function Chatbot() {
           <div className="min-w-0">
             <div className="flex items-center gap-2">
               <h3 className="truncate text-sm font-extrabold text-white">
-                Chat Support PMB UBL
+                Layanan Informasi PMB UBL
               </h3>
             </div>
             <p className="truncate text-xs font-medium text-white/80">
