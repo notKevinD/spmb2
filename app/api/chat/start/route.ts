@@ -9,14 +9,31 @@ type Visitor = {
 };
 
 function normalizePhone(phone: string) {
-  let number = phone.replace(/\D/g, '');
+  // Hapus semua karakter non-digit, kecuali '+' di awal
+  let number = phone.replace(/[^\d+]/g, '');
+  
+  // Jika nomor tidak dimulai dengan '+' atau '0' atau '62', tolak
+  if (!number.startsWith('+') && !number.startsWith('0') && !number.startsWith('62')) {
+    throw new Error('Nomor harus diawali dengan +62, 08, atau 62');
+  }
 
+  // Jika diawali dengan '0', ganti dengan '62'
   if (number.startsWith('0')) {
     number = '62' + number.slice(1);
   }
+  
+  // Jika diawali dengan '62' (tanpa +), biarkan saja
+  // Jika diawali dengan '+', hapus + dan pastikan 62
+  if (number.startsWith('+')) {
+    number = number.slice(1);
+    if (!number.startsWith('62')) {
+      throw new Error('Nomor dengan + harus diikuti 62 (contoh: +628123456789)');
+    }
+  }
 
-  if (number.startsWith('620')) {
-    number = '62' + number.slice(3);
+  // Pastikan nomor dimulai dengan 62
+  if (!number.startsWith('62')) {
+    throw new Error('Nomor harus diawali dengan 62 setelah normalisasi');
   }
 
   return number;
