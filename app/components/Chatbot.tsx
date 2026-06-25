@@ -195,15 +195,32 @@ function renderAssistantMessage(text: string) {
   return elements;
 }
 
+// ========== PERBAIKAN UTAMA: Fungsi ini sekarang menampilkan semua error validasi ==========
 function getUserFacingErrorMessage(error: unknown, fallback: string) {
-  if (
-    error instanceof Error &&
-    [
+  if (error instanceof Error) {
+    // Daftar error yang boleh ditampilkan ke user
+    const allowedErrors = [
+      // Error dari route.ts
       "Nama, nomor WhatsApp, dan asal sekolah wajib diisi.",
       "Nomor WhatsApp tidak valid.",
-    ].includes(error.message)
-  ) {
-    return error.message;
+      "Nomor harus diawali dengan +62, 08, atau 62",
+      "Nomor dengan + harus diikuti 62 (contoh: +628123456789)",
+      "Nomor harus diawali dengan 62 setelah normalisasi",
+      "Format nomor tidak valid",
+      // Error tambahan yang mungkin muncul
+      "Gagal membuat session di server.",
+      "Session gagal dibuat di n8n.",
+    ];
+
+    // Cek apakah error termasuk dalam daftar yang diizinkan
+    if (allowedErrors.includes(error.message)) {
+      return error.message;
+    }
+
+    // Opsional: tampilkan error detail di environment development
+    if (process.env.NODE_ENV === "development") {
+      console.warn("Development error detail:", error.message);
+    }
   }
 
   return fallback;
@@ -785,7 +802,7 @@ export default function Chatbot() {
                 phone: e.target.value,
               }))
             }
-            placeholder="Nomor WhatsApp"
+            placeholder="Nomor WhatsApp (contoh: 08123456789 atau +628123456789)"
             className="rounded-xl border border-sky-100 bg-white px-4 py-2.5 text-sm text-[#11192d] shadow-sm shadow-sky-900/5 transition-all placeholder:text-slate-400 focus:border-[#087ee7] focus:outline-none focus:ring-2 focus:ring-[#087ee7]/20"
           />
 
@@ -811,7 +828,7 @@ export default function Chatbot() {
           </button>
 
           <p className="mt-2 text-center text-[11px] leading-relaxed text-[#334766]/70">
-            Data ini digunakan untuk membantu layanan informasi PMB UBL.
+            Masukkan nomor WhatsApp dengan awalan 08, 62, atau +62
           </p>
         </form>
       ) : (
