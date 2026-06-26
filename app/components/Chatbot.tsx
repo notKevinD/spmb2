@@ -590,59 +590,77 @@ export default function Chatbot() {
   };
 
   const downloadChatHistory = () => {
-    if (messages.length === 0) return;
+  if (messages.length === 0) return;
 
-    const rows = [
-      [
-        "No",
-        "Session ID",
-        "Nama",
-        "Nomor WhatsApp",
-        "Asal Sekolah",
-        "Role",
-        "Pesan",
-        "Waktu Kirim",
-        "Waktu Terima",
-        "Pair ID",
-      ],
-    ];
+  const rows = [
+    [
+      "No",
+      "Pertanyaan User",
+      "Jawaban Chatbot",
+      "Waktu Pesan Dikirim",
+      "Waktu Pesan Diterima",
+    ],
+  ];
 
-    messages.forEach((message, index) => {
-      rows.push([
-        String(index + 1),
-        sessionId || "-",
-        visitor?.name || "-",
-        visitor?.phone || "-",
-        visitor?.school || "-",
-        message.role === "user" ? "Pengguna" : "Chatbot",
-        message.content.replace(/\*\*([\s\S]*?)\*\*/g, "$1"),
-        formatDateTime(message.sentAt),
-        formatDateTime(message.receivedAt),
-        message.pairId || "-",
-      ]);
-    });
+  const userMessages = messages.filter((message) => message.role === "user");
 
-    const csvContent =
-      "sep=;\n" + rows.map((row) => row.map(escapeCsv).join(";")).join("\n");
+  userMessages.forEach((userMessage, index) => {
+    let assistantMessage = null;
 
-    const blob = new Blob(["\uFEFF", csvContent], {
-      type: "text/csv;charset=utf-8",
-    });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
+    if (userMessage.pairId) {
+      assistantMessage =
+        messages.find(
+          (message) =>
+            message.role === "assistant" &&
+            message.pairId === userMessage.pairId,
+        ) || null;
+    }
 
-    const date = new Date().toISOString().slice(0, 10);
-    const shortSession = sessionId?.slice(0, 8) || "tanpa-session";
+    if (!assistantMessage) {
+      const userIndex = messages.findIndex(
+        (message) =>
+          message.role === "user" &&
+          message.content === userMessage.content &&
+          message.sentAt === userMessage.sentAt,
+      );
 
-    link.href = url;
-    link.download = `riwayat-chat-ubl-${date}-${shortSession}.csv`;
+      assistantMessage =
+        messages
+          .slice(userIndex + 1)
+          .find((message) => message.role === "assistant") || null;
+    }
 
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
+    rows.push([
+      String(index + 1),
+      userMessage.content.replace(/\*\*([\s\S]*?)\*\*/g, "$1"),
+      assistantMessage?.content.replace(/\*\*([\s\S]*?)\*\*/g, "$1") || "-",
+      formatDateTime(userMessage.sentAt),
+      formatDateTime(assistantMessage?.receivedAt),
+    ]);
+  });
 
-    URL.revokeObjectURL(url);
-  };
+  const csvContent =
+    "sep=;\n" + rows.map((row) => row.map(escapeCsv).join(";")).join("\n");
+
+  const blob = new Blob(["\uFEFF", csvContent], {
+    type: "text/csv;charset=utf-8",
+  });
+
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+
+  const date = new Date().toISOString().slice(0, 10);
+  const shortSession = sessionId?.slice(0, 8) || "tanpa-session";
+
+  link.href = url;
+  link.download = `riwayat-chat-ubl-${date}-${shortSession}.csv`;
+
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+
+  URL.revokeObjectURL(url);
+};
 
   if (!isOpen || isMinimized) {
     return (
