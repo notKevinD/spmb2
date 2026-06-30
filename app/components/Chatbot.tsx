@@ -590,77 +590,77 @@ export default function Chatbot() {
   };
 
   const downloadChatHistory = () => {
-  if (messages.length === 0) return;
+    if (messages.length === 0) return;
 
-  const rows = [
-    [
-      "No",
-      "Pertanyaan User",
-      "Jawaban Chatbot",
-      "Waktu Pesan Dikirim",
-      "Waktu Pesan Diterima",
-    ],
-  ];
+    const rows = [
+      [
+        "No",
+        "Pertanyaan User",
+        "Jawaban Chatbot",
+        "Waktu Pesan Dikirim",
+        "Waktu Pesan Diterima",
+      ],
+    ];
 
-  const userMessages = messages.filter((message) => message.role === "user");
+    const userMessages = messages.filter((message) => message.role === "user");
 
-  userMessages.forEach((userMessage, index) => {
-    let assistantMessage = null;
+    userMessages.forEach((userMessage, index) => {
+      let assistantMessage = null;
 
-    if (userMessage.pairId) {
-      assistantMessage =
-        messages.find(
+      if (userMessage.pairId) {
+        assistantMessage =
+          messages.find(
+            (message) =>
+              message.role === "assistant" &&
+              message.pairId === userMessage.pairId,
+          ) || null;
+      }
+
+      if (!assistantMessage) {
+        const userIndex = messages.findIndex(
           (message) =>
-            message.role === "assistant" &&
-            message.pairId === userMessage.pairId,
-        ) || null;
-    }
+            message.role === "user" &&
+            message.content === userMessage.content &&
+            message.sentAt === userMessage.sentAt,
+        );
 
-    if (!assistantMessage) {
-      const userIndex = messages.findIndex(
-        (message) =>
-          message.role === "user" &&
-          message.content === userMessage.content &&
-          message.sentAt === userMessage.sentAt,
-      );
+        assistantMessage =
+          messages
+            .slice(userIndex + 1)
+            .find((message) => message.role === "assistant") || null;
+      }
 
-      assistantMessage =
-        messages
-          .slice(userIndex + 1)
-          .find((message) => message.role === "assistant") || null;
-    }
+      rows.push([
+        String(index + 1),
+        userMessage.content.replace(/\*\*([\s\S]*?)\*\*/g, "$1"),
+        assistantMessage?.content.replace(/\*\*([\s\S]*?)\*\*/g, "$1") || "-",
+        formatDateTime(userMessage.sentAt),
+        formatDateTime(assistantMessage?.receivedAt),
+      ]);
+    });
 
-    rows.push([
-      String(index + 1),
-      userMessage.content.replace(/\*\*([\s\S]*?)\*\*/g, "$1"),
-      assistantMessage?.content.replace(/\*\*([\s\S]*?)\*\*/g, "$1") || "-",
-      formatDateTime(userMessage.sentAt),
-      formatDateTime(assistantMessage?.receivedAt),
-    ]);
-  });
+    const csvContent =
+      "sep=;\n" + rows.map((row) => row.map(escapeCsv).join(";")).join("\n");
 
-  const csvContent =
-    "sep=;\n" + rows.map((row) => row.map(escapeCsv).join(";")).join("\n");
+    const blob = new Blob(["\uFEFF", csvContent], {
+      type: "text/csv;charset=utf-8",
+    });
 
-  const blob = new Blob(["\uFEFF", csvContent], {
-    type: "text/csv;charset=utf-8",
-  });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
 
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
+    const date = new Date().toISOString().slice(0, 10);
+    const shortSession = sessionId?.slice(0, 8) || "tanpa-session";
 
-  const date = new Date().toISOString().slice(0, 10);
-  const shortSession = sessionId?.slice(0, 8) || "tanpa-session";
+    link.href = url;
+    link.download = `riwayat-chat-ubl-${date}-${shortSession}.csv`;
 
-  link.href = url;
-  link.download = `riwayat-chat-ubl-${date}-${shortSession}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
 
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
-
-  URL.revokeObjectURL(url);
-};
+    URL.revokeObjectURL(url);
+  };
 
   if (!isOpen || isMinimized) {
     return (
@@ -707,13 +707,11 @@ export default function Chatbot() {
 
   return (
     <div
-      className="fixed z-50 flex flex-col overflow-hidden rounded-2xl border border-[#c6d8ea] bg-white shadow-2xl shadow-[#102a43]/25"
-      style={{
-        bottom: "24px",
-        right: "24px",
-        width: "min(420px, calc(100vw - 48px))",
-        height: "min(620px, calc(100vh - 120px))",
-      }}
+      className="
+      fixed z-50 flex flex-col overflow-hidden bg-white shadow-2xl shadow-[#102a43]/25
+      inset-0 h-[100dvh] w-screen rounded-none border-0
+      sm:inset-auto sm:bottom-6 sm:right-6 sm:h-[min(620px,calc(100vh-120px))] sm:w-[min(420px,calc(100vw-48px))] sm:rounded-2xl sm:border sm:border-[#c6d8ea]
+    "
     >
       <div className="relative flex shrink-0 items-center justify-between overflow-hidden border-b-4 border-[#f5a623] bg-gradient-to-r from-[#062b55] via-[#075da8] to-[#0878bd] px-4 py-3.5">
         <div className="absolute -right-8 -top-10 h-28 w-28 rounded-full bg-white/10" />
