@@ -735,7 +735,7 @@ export default function Chatbot() {
         </div>
 
         <div className="relative flex items-center gap-1">
-          <button
+          {/* <button
             onClick={downloadChatHistory}
             disabled={messages.length === 0 || isLoading}
             className="rounded-lg p-2 text-white/80 transition-colors hover:bg-white/15 hover:text-white disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent"
@@ -748,7 +748,7 @@ export default function Chatbot() {
             type="button"
           >
             <Download className="w-4 h-4" />
-          </button>
+          </button> */}
 
           {visitor && (
             <button
