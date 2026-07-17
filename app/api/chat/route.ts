@@ -4,6 +4,7 @@ import { cookies } from 'next/headers';
 import { randomUUID } from 'crypto';
 
 type Visitor = {
+  id: string;
   name: string;
   phone: string;
   school: string;
@@ -76,7 +77,7 @@ export async function POST(req: NextRequest) {
           eventType: 'chat_message',
           sessionId,
           message,
-          visitor,
+          visitorId: visitor.id,
           timestamp: new Date().toISOString(),
           isNewSession,
         }),

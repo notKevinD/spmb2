@@ -1,8 +1,9 @@
 // app/api/chat/start/route.ts
-import { NextRequest, NextResponse } from 'next/server';
-import { randomUUID } from 'crypto';
+import { NextRequest, NextResponse } from "next/server";
+import { randomUUID } from "crypto";
 
 type Visitor = {
+  id: string;
   name: string;
   phone: string;
   school: string;
@@ -10,30 +11,36 @@ type Visitor = {
 
 function normalizePhone(phone: string) {
   // Hapus semua karakter non-digit, kecuali '+' di awal
-  let number = phone.replace(/[^\d+]/g, '');
-  
+  let number = phone.replace(/[^\d+]/g, "");
+
   // Jika nomor tidak dimulai dengan '+' atau '0' atau '62', tolak
-  if (!number.startsWith('+') && !number.startsWith('0') && !number.startsWith('62')) {
-    throw new Error('Nomor harus diawali dengan +62, 08, atau 62');
+  if (
+    !number.startsWith("+") &&
+    !number.startsWith("0") &&
+    !number.startsWith("62")
+  ) {
+    throw new Error("Nomor harus diawali dengan +62, 08, atau 62");
   }
 
   // Jika diawali dengan '0', ganti dengan '62'
-  if (number.startsWith('0')) {
-    number = '62' + number.slice(1);
+  if (number.startsWith("0")) {
+    number = "62" + number.slice(1);
   }
-  
+
   // Jika diawali dengan '62' (tanpa +), biarkan saja
   // Jika diawali dengan '+', hapus + dan pastikan 62
-  if (number.startsWith('+')) {
+  if (number.startsWith("+")) {
     number = number.slice(1);
-    if (!number.startsWith('62')) {
-      throw new Error('Nomor dengan + harus diikuti 62 (contoh: +628123456789)');
+    if (!number.startsWith("62")) {
+      throw new Error(
+        "Nomor dengan + harus diikuti 62 (contoh: +628123456789)",
+      );
     }
   }
 
   // Pastikan nomor dimulai dengan 62
-  if (!number.startsWith('62')) {
-    throw new Error('Nomor harus diawali dengan 62 setelah normalisasi');
+  if (!number.startsWith("62")) {
+    throw new Error("Nomor harus diawali dengan 62 setelah normalisasi");
   }
 
   return number;
@@ -49,7 +56,7 @@ async function readN8nJson(response: Response) {
   try {
     return JSON.parse(text);
   } catch {
-    throw new Error('Response n8n bukan JSON valid.');
+    throw new Error("Response n8n bukan JSON valid.");
   }
 }
 
@@ -57,17 +64,17 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
 
-    const name = String(body.name || '').trim();
-    const phone = String(body.phone || '').trim();
-    const school = String(body.school || '').trim();
+    const name = String(body.name || "").trim();
+    const phone = String(body.phone || "").trim();
+    const school = String(body.school || "").trim();
 
     if (!name || !phone || !school) {
       return NextResponse.json(
         {
           success: false,
-          error: 'Nama, nomor WhatsApp, dan asal sekolah wajib diisi.',
+          error: "Nama, nomor WhatsApp, dan asal sekolah wajib diisi.",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -77,15 +84,16 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         {
           success: false,
-          error: 'Nomor WhatsApp tidak valid.',
+          error: "Nomor WhatsApp tidak valid.",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     const sessionId = randomUUID();
 
-    const visitor: Visitor = {
+    const visitor = {
+      id: randomUUID(),
       name,
       phone: normalizedPhone,
       school,
@@ -97,20 +105,20 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         {
           success: false,
-          error: 'N8N_WEBHOOK_URL belum dikonfigurasi.',
+          error: "N8N_WEBHOOK_URL belum dikonfigurasi.",
         },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
     const n8nResponse = await fetch(n8nWebhookUrl, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
+        "Content-Type": "application/json",
+        Accept: "application/json",
       },
       body: JSON.stringify({
-        eventType: 'chat_new_session',
+        eventType: "chat_new_session",
         sessionId,
         visitor,
         timestamp: new Date().toISOString(),
@@ -118,14 +126,14 @@ export async function POST(req: NextRequest) {
     });
 
     if (!n8nResponse.ok) {
-      console.error('N8N start session error:', n8nResponse.status);
+      console.error("N8N start session error:", n8nResponse.status);
 
       return NextResponse.json(
         {
           success: false,
-          error: 'Gagal membuat session di server.',
+          error: "Gagal membuat session di server.",
         },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -135,9 +143,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         {
           success: false,
-          error: n8nData?.error || 'Session gagal dibuat di n8n.',
+          error: n8nData?.error || "Session gagal dibuat di n8n.",
         },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -145,20 +153,20 @@ export async function POST(req: NextRequest) {
       success: true,
       sessionId,
       visitor,
-      message: 'Session berhasil dibuat.',
+      message: "Session berhasil dibuat.",
     });
 
-    response.cookies.set('chat_session_id', sessionId, {
+    response.cookies.set("chat_session_id", sessionId, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
       maxAge: 60 * 60 * 24 * 7,
-      path: '/',
+      path: "/",
     });
 
     return response;
   } catch (error) {
-    console.error('Start Chat Error:', error);
+    console.error("Start Chat Error:", error);
 
     return NextResponse.json(
       {
@@ -166,9 +174,9 @@ export async function POST(req: NextRequest) {
         error:
           error instanceof Error
             ? error.message
-            : 'Failed to start chat session',
+            : "Failed to start chat session",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
