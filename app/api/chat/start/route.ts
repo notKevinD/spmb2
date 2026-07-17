@@ -126,11 +126,16 @@ export async function POST(req: NextRequest) {
 
     const n8nData = await readN8nJson(n8nResponse);
 
-    if (!n8nData?.success || !n8nData?.session?.session_id || !n8nData?.visitor?.visitor_uuid) {
+    if (
+      !n8nData?.success ||
+      !n8nData?.session?.session_id ||
+      !n8nData?.visitor?.visitor_uuid
+    ) {
       return NextResponse.json(
         {
           success: false,
-          error: n8nData?.error || "Data session dari n8n/PostgreSQL tidak lengkap.",
+          error:
+            n8nData?.error || "Data session dari n8n/PostgreSQL tidak lengkap.",
         },
         { status: 500 },
       );
@@ -138,12 +143,15 @@ export async function POST(req: NextRequest) {
 
     // PERBAIKAN: UUID murni dibaca dari PostgreSQL yang di-return lewat n8n
     const finalSessionId = n8nData.session.session_id;
-    const finalVisitorData = n8nData.visitor;
-    
+    const finalVisitorData = {
+      ...payloadVisitor,
+      visitor_uuid: n8nData.visitor.visitor_uuid,
+    };
+
     const response = NextResponse.json({
       success: true,
       sessionId: finalSessionId,
-      visitor: finalVisitorData,
+      visitor: finalVisitorData, // Sekarang objek ini dijamin punya .name dan .school
       message: "Session berhasil dibuat.",
     });
 
