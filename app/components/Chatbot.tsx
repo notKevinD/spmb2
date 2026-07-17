@@ -631,20 +631,12 @@ export default function Chatbot() {
 
         if (data.success && data.sessionId) {
           setSessionId(data.sessionId);
-        } else {
-          setNotice({
-            title: "Sesi chat belum siap",
-            message:
-              "Koneksi ke layanan chat belum berhasil dibuat. Coba muat ulang halaman.",
-          });
         }
+        // PERBAIKAN: Jangan pasang setNotice error di blok 'else' ini.
+        // Jika di incognito cookie kosong, biarkan saja pengguna mengisi form visitor baru.
       } catch (error) {
         console.error("Gagal membaca session:", error);
-        setNotice({
-          title: "Sesi chat belum siap",
-          message:
-            "Koneksi internet bermasalah. Periksa koneksi Anda, lalu muat ulang halaman.",
-        });
+        // Cukup log error atau biarkan mengalir tanpa memblokir form pendaftaran
         sessionInitializedRef.current = false;
       }
     }
