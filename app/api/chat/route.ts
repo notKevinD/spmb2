@@ -1,14 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
+import { LRUCache } from "lru-cache";
 
-// PERBAIKAN: Tambahkan visitor_uuid sebagai properti opsional agar TypeScript mengenalnya secara aman
 type Visitor = {
   id: string;
   name: string;
   phone: string;
   school: string;
-  visitor_uuid?: string; 
+  visitor_uuid?: string;
 };
+
+// ============================================
+// RATE LIMITER CONFIGURATION (Memory Cache)
+// ============================================
+const rateLimitCache = new LRUCache<string, number>({
+  max: 500, // Maksimal melacak 500 user aktif sekaligus
+  ttl: 60 * 1000, // Time-to-live: 1 menit
+});
+
+const MAX_REQUESTS_PER_MINUTE = 5;
 
 export async function POST(req: NextRequest) {
   try {
@@ -21,9 +31,31 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, error: "Message is required" }, { status: 400 });
     }
 
-    const cookieStore = await cookies();
+    if (!visitor) {
+      return NextResponse.json({ success: false, error: "Visitor is required" }, { status: 400 });
+    }
+
+    // ============================================
+    // LOGIKA RATE LIMITING
+    // ============================================
+    const userId = visitor.id || visitor.visitor_uuid || "anonymous";
+    const currentRequests = rateLimitCache.get(userId) || 0;
+
+    if (currentRequests >= MAX_REQUESTS_PER_MINUTE) {
+      return NextResponse.json(
+        { 
+          success: false, 
+          response: "Terlalu banyak mengirim pesan. Tolong beri jeda beberapa saat sebelum mengetik lagi.", 
+          error: "RATE_LIMIT_EXCEEDED" 
+        }, 
+        { status: 429 } // HTTP 429 Too Many Requests
+      );
+    }
     
-    // Sesi wajib didapatkan dari client state atau cookie store yang sah dari n8n.
+    // Tambah hit hitungan request user
+    rateLimitCache.set(userId, currentRequests + 1);
+
+    const cookieStore = await cookies();
     const sessionId = clientSessionId || cookieStore.get("chat_session_id")?.value;
 
     if (!sessionId) {
@@ -31,10 +63,6 @@ export async function POST(req: NextRequest) {
         { success: false, error: "Sesi tidak valid. Silakan isi data form kembali." },
         { status: 401 }
       );
-    }
-
-    if (!visitor) {
-      return NextResponse.json({ success: false, error: "Visitor is required" }, { status: 400 });
     }
 
     const n8nWebhookUrl = process.env.N8N_WEBHOOK_URL;
@@ -57,10 +85,9 @@ export async function POST(req: NextRequest) {
         },
         body: JSON.stringify({
           eventType: "chat_message",
-          sessionId, // Mengirim UUID PostgreSQL ke n8n untuk tracking history chat
+          sessionId,
           message,
-          // PERBAIKAN: Tidak perlu lagi menggunakan 'as any' karena tipe datanya sudah didefinisikan dengan benar
-          visitorId: visitor.id || visitor.visitor_uuid, 
+          visitorId: userId,
           timestamp: new Date().toISOString(),
           isNewSession: false,
         }),

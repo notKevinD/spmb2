@@ -5,7 +5,6 @@ import {
   useEffect,
   useRef,
   useCallback,
-  type ReactNode,
 } from "react";
 import {
   MessageCircle,
@@ -16,6 +15,8 @@ import {
   Minimize2,
   GraduationCap,
 } from "lucide-react";
+
+import ReactMarkdown from "react-markdown";
 
 // ============================================
 // 1. TIPE DATA
@@ -78,102 +79,104 @@ function formatDateTime(value?: string): string {
 }
 
 // ============================================
-// 3. RENDER PESAN
+// 3. RENDER PESAN (MARKDOWN ENGINE)
 // ============================================
 
-function cleanUrl(url: string) {
-  const trailingPunctuation = /[.,!?;:)]+$/;
-  const match = url.match(trailingPunctuation);
-  if (!match) return { clean: url, trailing: "" };
-  return { clean: url.slice(0, -match[0].length), trailing: match[0] };
+function AssistantMarkdownRenderer({ content }: { content: string }) {
+  return (
+    <ReactMarkdown
+      components={{
+        a: ({ node, href, children, ...props }) => {
+          const isPhone = href?.match(/^(?:\+62|62|0)[0-9]{9,13}$/);
+          const finalHref = isPhone ? formatWhatsAppLink(href || "") : href;
+          return (
+            <a
+              href={finalHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sky-600 underline font-semibold break-all hover:text-sky-800"
+              {...props}
+            >
+              {children}
+            </a>
+          );
+        },
+        ul: ({ children }) => <ul className="list-disc pl-4 space-y-1 my-1 text-slate-800">{children}</ul>,
+        ol: ({ children }) => <ol className="list-decimal pl-4 space-y-1 my-1 text-slate-800">{children}</ol>,
+        strong: ({ children }) => <strong className="font-bold text-gray-900">{children}</strong>,
+        p: ({ children }) => <p className="m-0 leading-relaxed text-slate-800">{children}</p>,
+      }}
+    >
+      {content}
+    </ReactMarkdown>
+  );
 }
 
-function renderMessageWithLinks(text: string, keyPrefix = "message") {
-  const combinedRegex =
-    /(https?:\/\/[^\s]+|www\.[^\s]+|(\+62|62|0)[0-9][0-9\s-]{7,18}[0-9])/g;
-  const elements: ReactNode[] = [];
-  let lastIndex = 0;
-  let match: RegExpExecArray | null;
+// ============================================
+// KOMPONEN MESSAGE LIST (DENGAN AUTO-SCROLL PINTAR)
+// ============================================
+function MessageList({
+  messages,
+  isLoading,
+}: {
+  messages: Message[];
+  isLoading: boolean;
+}) {
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  while ((match = combinedRegex.exec(text)) !== null) {
-    const matchedText = match[0];
-    if (match.index > lastIndex) {
-      elements.push(text.slice(lastIndex, match.index));
+  // Mekanisme auto-scroll berbasis scrollHeight kontainer utama
+  useEffect(() => {
+    if (containerRef.current) {
+      containerRef.current.scrollTo({
+        top: containerRef.current.scrollHeight,
+        behavior: "smooth",
+      });
     }
-    const isUrl =
-      matchedText.startsWith("http://") ||
-      matchedText.startsWith("https://") ||
-      matchedText.startsWith("www.");
+  }, [messages, isLoading]);
 
-    if (isUrl) {
-      const { clean, trailing } = cleanUrl(matchedText);
-      const href = clean.startsWith("www.") ? "https://" + clean : clean;
-      elements.push(
-        <a
-          key={`${keyPrefix}-url-${match.index}`}
-          href={href}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-blue-600 underline font-medium break-all"
+  return (
+    <div
+      ref={containerRef}
+      className="min-h-0 flex-1 space-y-3 overflow-y-auto bg-[#f4f8fc] p-4 scroll-smooth"
+      aria-live="polite"
+    >
+      {messages.map((message, index) => (
+        <div
+          key={message.role + "-" + index}
+          className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
         >
-          {clean}
-        </a>,
-      );
-      if (trailing) elements.push(trailing);
-    } else {
-      const { clean, trailing } = cleanUrl(matchedText);
-      elements.push(
-        <a
-          key={`${keyPrefix}-phone-${match.index}`}
-          href={formatWhatsAppLink(clean)}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-blue-600 underline font-medium"
-        >
-          {clean}
-        </a>,
-      );
-      if (trailing) elements.push(trailing);
-    }
-    lastIndex = match.index + matchedText.length;
-  }
-  if (lastIndex < text.length) {
-    elements.push(text.slice(lastIndex));
-  }
-  return elements;
-}
-
-function renderAssistantMessage(text: string) {
-  const boldRegex = /\*\*([\s\S]+?)\*\*/g;
-  const elements: ReactNode[] = [];
-  let lastIndex = 0;
-  let match: RegExpExecArray | null;
-
-  while ((match = boldRegex.exec(text)) !== null) {
-    if (match.index > lastIndex) {
-      elements.push(
-        ...renderMessageWithLinks(
-          text.slice(lastIndex, match.index),
-          `plain-${lastIndex}`,
-        ),
-      );
-    }
-    elements.push(
-      <strong
-        key={`bold-${match.index}`}
-        className="font-semibold text-gray-900"
-      >
-        {renderMessageWithLinks(match[1], `bold-${match.index}`)}
-      </strong>,
-    );
-    lastIndex = match.index + match[0].length;
-  }
-  if (lastIndex < text.length) {
-    elements.push(
-      ...renderMessageWithLinks(text.slice(lastIndex), `plain-${lastIndex}`),
-    );
-  }
-  return elements;
+          <div
+            className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed whitespace-pre-line shadow-sm ${
+              message.role === "user"
+                ? "rounded-br-sm bg-[#075da8] text-white shadow-md shadow-[#063f73]/20"
+                : "rounded-bl-sm border border-[#d4e1ee] bg-white text-[#243b53] shadow-sm shadow-[#102a43]/5"
+            }`}
+          >
+            {message.role === "assistant" ? (
+              <AssistantMarkdownRenderer content={message.content} />
+            ) : (
+              message.content
+            )}
+          </div>
+        </div>
+      ))}
+      {isLoading && (
+        <div className="flex justify-start">
+          <div className="rounded-2xl rounded-bl-sm border border-[#d4e1ee] bg-white px-4 py-3 shadow-sm shadow-[#102a43]/5">
+            <div className="flex gap-1.5">
+              {[0, 0.15, 0.3].map((delay, i) => (
+                <div
+                  key={i}
+                  className="h-2 w-2 animate-bounce rounded-full bg-[#075da8]"
+                  style={{ animationDelay: `${delay}s` }}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 }
 
 // ============================================
@@ -240,6 +243,7 @@ function NoticeBanner({
   );
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function ChatHeader({
   visitor,
   isLoading,
@@ -403,62 +407,6 @@ function VisitorForm({
   );
 }
 
-function MessageList({
-  messages,
-  isLoading,
-}: {
-  messages: Message[];
-  isLoading: boolean;
-}) {
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
-
-  return (
-    <div
-      className="min-h-0 flex-1 space-y-3 overflow-y-auto bg-[#f4f8fc] p-4"
-      aria-live="polite"
-    >
-      {messages.map((message, index) => (
-        <div
-          key={message.role + "-" + index}
-          className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
-        >
-          <div
-            className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed whitespace-pre-line shadow-sm ${
-              message.role === "user"
-                ? "rounded-br-sm bg-[#075da8] text-white shadow-md shadow-[#063f73]/20"
-                : "rounded-bl-sm border border-[#d4e1ee] bg-white text-[#243b53] shadow-sm shadow-[#102a43]/5"
-            }`}
-          >
-            {message.role === "assistant"
-              ? renderAssistantMessage(message.content)
-              : message.content}
-          </div>
-        </div>
-      ))}
-      {isLoading && (
-        <div className="flex justify-start">
-          <div className="rounded-2xl rounded-bl-sm border border-[#d4e1ee] bg-white px-4 py-3 shadow-sm shadow-[#102a43]/5">
-            <div className="flex gap-1.5">
-              {[0, 0.15, 0.3].map((delay, i) => (
-                <div
-                  key={i}
-                  className="h-2 w-2 animate-bounce rounded-full bg-[#075da8]"
-                  style={{ animationDelay: `${delay}s` }}
-                />
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-      <div ref={messagesEndRef} />
-    </div>
-  );
-}
-
 function MessageInput({
   value,
   onChange,
@@ -596,7 +544,6 @@ export default function Chatbot() {
 
   const [sessionId, setSessionId] = useState<string | null>(null);
 
-  // PERBAIKAN 1: Menggunakan lazy initialization state untuk mengambil data visitor agar tidak memicu re-render
   const [visitor, setVisitor] = useState<Visitor | null>(() => {
     if (typeof window === "undefined") return null;
     const savedVisitor = localStorage.getItem(VISITOR_STORAGE_KEY);
@@ -632,11 +579,8 @@ export default function Chatbot() {
         if (data.success && data.sessionId) {
           setSessionId(data.sessionId);
         }
-        // PERBAIKAN: Jangan pasang setNotice error di blok 'else' ini.
-        // Jika di incognito cookie kosong, biarkan saja pengguna mengisi form visitor baru.
       } catch (error) {
         console.error("Gagal membaca session:", error);
-        // Cukup log error atau biarkan mengalir tanpa memblokir form pendaftaran
         sessionInitializedRef.current = false;
       }
     }
@@ -652,8 +596,6 @@ export default function Chatbot() {
       try {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed)) {
-          // PERBAIKAN 2: Menggunakan queueMicrotask / setTimeout asinkron untuk memindahkan
-          // pemanggilan setState keluar dari siklus efek sinkron demi mematuhi aturan linting.
           queueMicrotask(() => {
             setMessages(parsed);
             prevMessagesRef.current = parsed;
@@ -697,9 +639,6 @@ export default function Chatbot() {
           throw new Error(result.error || "Gagal memulai chat.");
         }
 
-        // Meskipun cookies.set() diblokir oleh Incognito Mode,
-        // baris ini akan mengunci UUID di memori RAM browser sehingga chat tetap jalan lancar:
-  
         setSessionId(result.sessionId);
         setVisitor(result.visitor);
         hasLoadedHistoryRef.current = true;
@@ -855,12 +794,10 @@ export default function Chatbot() {
   }, [visitor, sessionId]);
 
   const resetVisitorData = useCallback(() => {
-    // 1. Hapus riwayat sesi aktif saat ini
     if (sessionId) {
       localStorage.removeItem(getChatHistoryKey(sessionId));
     }
 
-    // 2. PERBAIKAN: Sapu bersih semua data riwayat chat lama/kosong yang tertinggal di localStorage
     if (typeof window !== "undefined") {
       const keysToRemove: string[] = [];
       for (let i = 0; i < localStorage.length; i++) {
@@ -869,14 +806,11 @@ export default function Chatbot() {
           keysToRemove.push(key);
         }
       }
-      // Eksekusi penghapusan seluruh history lama
       keysToRemove.forEach((key) => localStorage.removeItem(key));
     }
 
-    // 3. Hapus data visitor utama
     localStorage.removeItem(VISITOR_STORAGE_KEY);
 
-    // 4. Reset state aplikasi
     setVisitor(null);
     setSessionId(null);
     setMessages([]);
