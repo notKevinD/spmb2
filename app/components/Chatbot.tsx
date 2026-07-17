@@ -232,7 +232,6 @@ function NoticeBanner({ notice, onClose }: { notice: ChatNotice; onClose: () => 
 
 function ChatHeader({
   visitor,
-  messages,
   isLoading,
   isCreatingNewChat,
   onNewChat,
@@ -322,10 +321,7 @@ function VisitorForm({
     const trimmedPhone = phone.trim();
     const trimmedSchool = school.trim();
 
-    if (!trimmedName || !trimmedPhone || !trimmedSchool) {
-      // Parent akan menangani error via notice
-      // Tapi kita lewati validasi ke parent
-    }
+    if (!trimmedName || !trimmedPhone || !trimmedSchool) return;
 
     if (!validatePhoneNumber(trimmedPhone)) {
       setPhoneError("Nomor WhatsApp tidak valid.");
@@ -447,7 +443,7 @@ function MessageInput({
 }: {
   value: string;
   onChange: (val: string) => void;
-  onSubmit: () => void;
+  onSubmit: (text: string) => void;
   disabled: boolean;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -459,7 +455,7 @@ function MessageInput({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!value.trim() || disabled) return;
-    onSubmit();
+    onSubmit(value.trim());
   };
 
   return (
@@ -566,9 +562,21 @@ export default function Chatbot() {
   const [isStartingChat, setIsStartingChat] = useState(false);
 
   const [sessionId, setSessionId] = useState<string | null>(null);
-  const [visitor, setVisitor] = useState<Visitor | null>(null);
+  
+  // PERBAIKAN 1: Menggunakan lazy initialization state untuk mengambil data visitor agar tidak memicu re-render
+  const [visitor, setVisitor] = useState<Visitor | null>(() => {
+    if (typeof window === "undefined") return null;
+    const savedVisitor = localStorage.getItem(VISITOR_STORAGE_KEY);
+    if (savedVisitor) {
+      try {
+        return JSON.parse(savedVisitor);
+      } catch {
+        localStorage.removeItem(VISITOR_STORAGE_KEY);
+      }
+    }
+    return null;
+  });
 
-  const [visitorForm, setVisitorForm] = useState({ name: "", phone: "", school: "" });
   const [confirmationAction, setConfirmationAction] = useState<ConfirmationAction | null>(null);
   const [isCreatingNewChat, setIsCreatingNewChat] = useState(false);
   const [notice, setNotice] = useState<ChatNotice | null>(null);
@@ -584,22 +592,12 @@ export default function Chatbot() {
 
     async function initSession() {
       try {
-        const savedVisitor = localStorage.getItem(VISITOR_STORAGE_KEY);
-        if (savedVisitor) {
-          try {
-            setVisitor(JSON.parse(savedVisitor));
-          } catch {
-            localStorage.removeItem(VISITOR_STORAGE_KEY);
-          }
-        }
-
         const res = await fetch("/api/chat/session", { method: "GET" });
         const data = await res.json();
 
         if (data.success && data.sessionId) {
           setSessionId(data.sessionId);
         } else {
-          // eslint-disable-next-line react-hooks/set-state-in-effect
           setNotice({
             title: "Sesi chat belum siap",
             message: "Koneksi ke layanan chat belum berhasil dibuat. Coba muat ulang halaman.",
@@ -607,7 +605,6 @@ export default function Chatbot() {
         }
       } catch (error) {
         console.error("Gagal membaca session:", error);
-        // eslint-disable-next-line react-hooks/set-state-in-effect
         setNotice({
           title: "Sesi chat belum siap",
           message: "Koneksi internet bermasalah. Periksa koneksi Anda, lalu muat ulang halaman.",
@@ -627,9 +624,12 @@ export default function Chatbot() {
       try {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed)) {
-          // eslint-disable-next-line react-hooks/set-state-in-effect
-          setMessages(parsed);
-          prevMessagesRef.current = parsed;
+          // PERBAIKAN 2: Menggunakan queueMicrotask / setTimeout asinkron untuk memindahkan 
+          // pemanggilan setState keluar dari siklus efek sinkron demi mematuhi aturan linting.
+          queueMicrotask(() => {
+            setMessages(parsed);
+            prevMessagesRef.current = parsed;
+          });
         }
       } catch {
         localStorage.removeItem(getChatHistoryKey(sessionId));
@@ -697,19 +697,17 @@ export default function Chatbot() {
     []
   );
 
-  const sendMessage = useCallback(
-    async (e: React.FormEvent) => {
-      e.preventDefault();
-      if (!input.trim() || isLoading || !sessionId || !visitor) return;
+  const handleSendMessage = useCallback(
+    async (textToSend: string) => {
+      if (isLoading || !sessionId || !visitor) return;
 
-      const userMessage = input.trim();
       const pairId = crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
       const sentAt = new Date().toISOString();
 
       setInput("");
       setNotice(null);
 
-      const userMsg: Message = { role: "user", content: userMessage, sentAt, pairId };
+      const userMsg: Message = { role: "user", content: textToSend, sentAt, pairId };
       setMessages((prev) => [...prev, userMsg]);
 
       setIsLoading(true);
@@ -717,7 +715,7 @@ export default function Chatbot() {
         const res = await fetch("/api/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ message: userMessage, sessionId, visitor, sentAt }),
+          body: JSON.stringify({ message: textToSend, sessionId, visitor, sentAt }),
         });
         const data = await res.json();
         const receivedAt = new Date().toISOString();
@@ -752,7 +750,7 @@ export default function Chatbot() {
         setIsLoading(false);
       }
     },
-    [input, isLoading, sessionId, visitor]
+    [isLoading, sessionId, visitor]
   );
 
   const startNewChat = useCallback(() => {
@@ -812,7 +810,6 @@ export default function Chatbot() {
     setVisitor(null);
     setSessionId(null);
     setMessages([]);
-    setVisitorForm({ name: "", phone: "", school: "" });
     hasLoadedHistoryRef.current = false;
     setConfirmationAction(null);
   }, [sessionId]);
@@ -821,51 +818,6 @@ export default function Chatbot() {
     if (isCreatingNewChat) return;
     setConfirmationAction("change-user");
   }, [isCreatingNewChat]);
-
-  const downloadChatHistory = useCallback(() => {
-    if (messages.length === 0) return;
-
-    const pairMap = new Map<string, Message>();
-    messages.forEach((msg) => {
-      if (msg.role === "assistant" && msg.pairId) {
-        pairMap.set(msg.pairId, msg);
-      }
-    });
-
-    const rows = [
-      ["No", "Pertanyaan User", "Jawaban Chatbot", "Waktu Dikirim", "Waktu Diterima"],
-    ];
-
-    const userMessages = messages.filter((m) => m.role === "user");
-    userMessages.forEach((userMsg, index) => {
-      let assistantMsg: Message | undefined;
-      if (userMsg.pairId) {
-        assistantMsg = pairMap.get(userMsg.pairId);
-      }
-      if (!assistantMsg) {
-        const idx = messages.findIndex((m) => m === userMsg);
-        assistantMsg = messages.slice(idx + 1).find((m) => m.role === "assistant");
-      }
-      rows.push([
-        String(index + 1),
-        userMsg.content.replace(/\*\*([\s\S]*?)\*\*/g, "$1"),
-        assistantMsg?.content.replace(/\*\*([\s\S]*?)\*\*/g, "$1") || "-",
-        formatDateTime(userMsg.sentAt),
-        formatDateTime(assistantMsg?.receivedAt),
-      ]);
-    });
-
-    const csvContent = "sep=;\n" + rows.map((row) => row.map(escapeCsv).join(";")).join("\n");
-    const blob = new Blob(["\uFEFF", csvContent], { type: "text/csv;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `riwayat-chat-ubl-${new Date().toISOString().slice(0, 10)}-${sessionId?.slice(0, 8) || "tanpa-session"}.csv`;
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    URL.revokeObjectURL(url);
-  }, [messages, sessionId]);
 
   // ========== RENDER ==========
 
@@ -944,13 +896,9 @@ export default function Chatbot() {
             <MessageInput
               value={input}
               onChange={setInput}
-              onSubmit={() => {
-                const fakeEvent = { preventDefault: () => {} } as React.FormEvent;
-                sendMessage(fakeEvent);
-              }}
+              onSubmit={handleSendMessage}
               disabled={
                 isLoading ||
-                !input.trim() ||
                 confirmationAction !== null ||
                 isCreatingNewChat ||
                 !sessionId ||

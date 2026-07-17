@@ -1,13 +1,4 @@
-// app/api/chat/start/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { randomUUID } from "crypto";
-
-type Visitor = {
-  id: string;
-  name: string;
-  phone: string;
-  school: string;
-};
 
 function normalizePhone(phone: string) {
   // Hapus semua karakter non-digit, kecuali '+' di awal
@@ -27,7 +18,6 @@ function normalizePhone(phone: string) {
     number = "62" + number.slice(1);
   }
 
-  // Jika diawali dengan '62' (tanpa +), biarkan saja
   // Jika diawali dengan '+', hapus + dan pastikan 62
   if (number.startsWith("+")) {
     number = number.slice(1);
@@ -90,9 +80,8 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const sessionId = randomUUID();
-
-    const visitor = {
+    // Dibedakan namanya menjadi payloadVisitor agar tidak bentrok di bawah
+    const payloadVisitor = {
       name,
       phone: normalizedPhone,
       school,
@@ -118,8 +107,7 @@ export async function POST(req: NextRequest) {
       },
       body: JSON.stringify({
         eventType: "chat_new_session",
-        sessionId,
-        visitor,
+        visitor: payloadVisitor,
         timestamp: new Date().toISOString(),
       }),
     });
@@ -138,33 +126,29 @@ export async function POST(req: NextRequest) {
 
     const n8nData = await readN8nJson(n8nResponse);
 
-    if (!n8nData?.success) {
+    if (!n8nData?.success || !n8nData?.session?.session_id || !n8nData?.visitor?.visitor_uuid) {
       return NextResponse.json(
         {
           success: false,
-          error: n8nData?.error || "Session gagal dibuat di n8n.",
-        },
-        { status: 500 },
-      );
-    }
-    if (!n8nData?.visitor?.visitor_uuid) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "Visitor UUID tidak dikembalikan oleh n8n.",
+          error: n8nData?.error || "Data session dari n8n/PostgreSQL tidak lengkap.",
         },
         { status: 500 },
       );
     }
 
+    // PERBAIKAN: UUID murni dibaca dari PostgreSQL yang di-return lewat n8n
+    const finalSessionId = n8nData.session.session_id;
+    const finalVisitorData = n8nData.visitor;
+    
     const response = NextResponse.json({
       success: true,
-      sessionId,
-      visitor: n8nData.visitor,
+      sessionId: finalSessionId,
+      visitor: finalVisitorData,
       message: "Session berhasil dibuat.",
     });
 
-    response.cookies.set("chat_session_id", sessionId, {
+    // Mengunci cookie dengan UUID asli dari PostgreSQL
+    response.cookies.set("chat_session_id", finalSessionId, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
