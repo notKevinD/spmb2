@@ -697,6 +697,9 @@ export default function Chatbot() {
           throw new Error(result.error || "Gagal memulai chat.");
         }
 
+        // Meskipun cookies.set() diblokir oleh Incognito Mode,
+        // baris ini akan mengunci UUID di memori RAM browser sehingga chat tetap jalan lancar:
+  
         setSessionId(result.sessionId);
         setVisitor(result.visitor);
         hasLoadedHistoryRef.current = true;
