@@ -117,7 +117,7 @@ function renderMessageWithLinks(text: string, keyPrefix = "message") {
           className="text-blue-600 underline font-medium break-all"
         >
           {clean}
-        </a>
+        </a>,
       );
       if (trailing) elements.push(trailing);
     } else {
@@ -131,7 +131,7 @@ function renderMessageWithLinks(text: string, keyPrefix = "message") {
           className="text-blue-600 underline font-medium"
         >
           {clean}
-        </a>
+        </a>,
       );
       if (trailing) elements.push(trailing);
     }
@@ -154,20 +154,23 @@ function renderAssistantMessage(text: string) {
       elements.push(
         ...renderMessageWithLinks(
           text.slice(lastIndex, match.index),
-          `plain-${lastIndex}`
-        )
+          `plain-${lastIndex}`,
+        ),
       );
     }
     elements.push(
-      <strong key={`bold-${match.index}`} className="font-semibold text-gray-900">
+      <strong
+        key={`bold-${match.index}`}
+        className="font-semibold text-gray-900"
+      >
         {renderMessageWithLinks(match[1], `bold-${match.index}`)}
-      </strong>
+      </strong>,
     );
     lastIndex = match.index + match[0].length;
   }
   if (lastIndex < text.length) {
     elements.push(
-      ...renderMessageWithLinks(text.slice(lastIndex), `plain-${lastIndex}`)
+      ...renderMessageWithLinks(text.slice(lastIndex), `plain-${lastIndex}`),
     );
   }
   return elements;
@@ -180,7 +183,8 @@ function renderAssistantMessage(text: string) {
 function getErrorMessage(error: unknown): { code: string; message: string } {
   if (error instanceof Error) {
     const errorMap: Record<string, string> = {
-      "Nama, nomor WhatsApp, dan asal sekolah wajib diisi.": "ERR_MISSING_FIELDS",
+      "Nama, nomor WhatsApp, dan asal sekolah wajib diisi.":
+        "ERR_MISSING_FIELDS",
       "Nomor WhatsApp tidak valid.": "ERR_INVALID_PHONE",
       "Gagal membuat session di server.": "ERR_SESSION_FAILED",
       "Session gagal dibuat di n8n.": "ERR_N8N_FAILED",
@@ -207,7 +211,13 @@ function getErrorMessage(error: unknown): { code: string; message: string } {
 // 5. KOMPONEN ANAK
 // ============================================
 
-function NoticeBanner({ notice, onClose }: { notice: ChatNotice; onClose: () => void }) {
+function NoticeBanner({
+  notice,
+  onClose,
+}: {
+  notice: ChatNotice;
+  onClose: () => void;
+}) {
   return (
     <div
       className="flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2.5 text-left text-xs text-red-900"
@@ -259,7 +269,9 @@ function ChatHeader({
             </h3>
           </div>
           <p className="truncate text-xs font-medium text-white/80">
-            {visitor ? `${visitor.name} - ${visitor.school}` : "Universitas Bandar Lampung"}
+            {visitor
+              ? `${visitor.name} - ${visitor.school}`
+              : "Universitas Bandar Lampung"}
           </p>
         </div>
       </div>
@@ -332,13 +344,20 @@ function VisitorForm({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-1 flex-col justify-center gap-3 bg-[#f4f8fc] p-5">
+    <form
+      onSubmit={handleSubmit}
+      className="flex flex-1 flex-col justify-center gap-3 bg-[#f4f8fc] p-5"
+    >
       <div className="text-center mb-3">
         <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-[#075da8] shadow-lg shadow-[#063f73]/20">
           <GraduationCap className="h-8 w-8 text-white" />
         </div>
-        <p className="text-sm font-extrabold text-[#11192d]">Selamat datang di Chat Support PMB UBL</p>
-        <p className="mt-1 text-xs font-medium text-[#334766]">Silakan isi data berikut sebelum memulai chat.</p>
+        <p className="text-sm font-extrabold text-[#11192d]">
+          Selamat datang di Chat Support PMB UBL
+        </p>
+        <p className="mt-1 text-xs font-medium text-[#334766]">
+          Silakan isi data berikut sebelum memulai chat.
+        </p>
       </div>
 
       {notice && <NoticeBanner notice={notice} onClose={onNoticeClose} />}
@@ -357,10 +376,12 @@ function VisitorForm({
           value={phone}
           onChange={handlePhoneChange}
           placeholder="Nomor WhatsApp (contoh: 08123456789 atau +628123456789)"
-          className={`w-full rounded-xl border ${phoneError ? 'border-red-300' : 'border-sky-100'} bg-white px-4 py-2.5 text-sm text-[#11192d] shadow-sm shadow-sky-900/5 transition-all placeholder:text-slate-400 focus:border-[#087ee7] focus:outline-none focus:ring-2 focus:ring-[#087ee7]/20`}
+          className={`w-full rounded-xl border ${phoneError ? "border-red-300" : "border-sky-100"} bg-white px-4 py-2.5 text-sm text-[#11192d] shadow-sm shadow-sky-900/5 transition-all placeholder:text-slate-400 focus:border-[#087ee7] focus:outline-none focus:ring-2 focus:ring-[#087ee7]/20`}
           required
         />
-        {phoneError && <p className="mt-1 text-xs text-red-600">{phoneError}</p>}
+        {phoneError && (
+          <p className="mt-1 text-xs text-red-600">{phoneError}</p>
+        )}
       </div>
       <input
         type="text"
@@ -396,7 +417,10 @@ function MessageList({
   }, [messages]);
 
   return (
-    <div className="min-h-0 flex-1 space-y-3 overflow-y-auto bg-[#f4f8fc] p-4" aria-live="polite">
+    <div
+      className="min-h-0 flex-1 space-y-3 overflow-y-auto bg-[#f4f8fc] p-4"
+      aria-live="polite"
+    >
       {messages.map((message, index) => (
         <div
           key={message.role + "-" + index}
@@ -493,7 +517,8 @@ function ConfirmationDialog({
   isProcessing: boolean;
 }) {
   if (!action) return null;
-  const title = action === "new-chat" ? "Buat chat baru?" : "Ganti data pengguna?";
+  const title =
+    action === "new-chat" ? "Buat chat baru?" : "Ganti data pengguna?";
   const message =
     action === "new-chat"
       ? "Riwayat percakapan saat ini tidak dapat dilihat lagi setelah chat baru dibuat."
@@ -516,7 +541,10 @@ function ConfirmationDialog({
             <h4 id="confirm-title" className="text-sm font-bold text-[#11192d]">
               {title}
             </h4>
-            <p id="confirm-message" className="mt-1 text-xs leading-relaxed text-[#334766]">
+            <p
+              id="confirm-message"
+              className="mt-1 text-xs leading-relaxed text-[#334766]"
+            >
               {message}
             </p>
           </div>
@@ -536,7 +564,11 @@ function ConfirmationDialog({
             disabled={isProcessing}
             className="rounded-lg bg-[#087ee7] px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-[#056bc4] disabled:cursor-not-allowed disabled:bg-slate-300"
           >
-            {isProcessing ? "Memproses..." : action === "new-chat" ? "Ya, buat chat baru" : "Ya, ganti data"}
+            {isProcessing
+              ? "Memproses..."
+              : action === "new-chat"
+                ? "Ya, buat chat baru"
+                : "Ya, ganti data"}
           </button>
         </div>
       </div>
@@ -549,7 +581,8 @@ function ConfirmationDialog({
 // ============================================
 
 const VISITOR_STORAGE_KEY = "pmb_chat_visitor";
-const getChatHistoryKey = (sessionId: string) => `pmb_chat_history_${sessionId}`;
+const getChatHistoryKey = (sessionId: string) =>
+  `pmb_chat_history_${sessionId}`;
 
 export default function Chatbot() {
   const [isOpen, setIsOpen] = useState(false);
@@ -562,7 +595,7 @@ export default function Chatbot() {
   const [isStartingChat, setIsStartingChat] = useState(false);
 
   const [sessionId, setSessionId] = useState<string | null>(null);
-  
+
   // PERBAIKAN 1: Menggunakan lazy initialization state untuk mengambil data visitor agar tidak memicu re-render
   const [visitor, setVisitor] = useState<Visitor | null>(() => {
     if (typeof window === "undefined") return null;
@@ -577,7 +610,8 @@ export default function Chatbot() {
     return null;
   });
 
-  const [confirmationAction, setConfirmationAction] = useState<ConfirmationAction | null>(null);
+  const [confirmationAction, setConfirmationAction] =
+    useState<ConfirmationAction | null>(null);
   const [isCreatingNewChat, setIsCreatingNewChat] = useState(false);
   const [notice, setNotice] = useState<ChatNotice | null>(null);
 
@@ -600,14 +634,16 @@ export default function Chatbot() {
         } else {
           setNotice({
             title: "Sesi chat belum siap",
-            message: "Koneksi ke layanan chat belum berhasil dibuat. Coba muat ulang halaman.",
+            message:
+              "Koneksi ke layanan chat belum berhasil dibuat. Coba muat ulang halaman.",
           });
         }
       } catch (error) {
         console.error("Gagal membaca session:", error);
         setNotice({
           title: "Sesi chat belum siap",
-          message: "Koneksi internet bermasalah. Periksa koneksi Anda, lalu muat ulang halaman.",
+          message:
+            "Koneksi internet bermasalah. Periksa koneksi Anda, lalu muat ulang halaman.",
         });
         sessionInitializedRef.current = false;
       }
@@ -624,7 +660,7 @@ export default function Chatbot() {
       try {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed)) {
-          // PERBAIKAN 2: Menggunakan queueMicrotask / setTimeout asinkron untuk memindahkan 
+          // PERBAIKAN 2: Menggunakan queueMicrotask / setTimeout asinkron untuk memindahkan
           // pemanggilan setState keluar dari siklus efek sinkron demi mematuhi aturan linting.
           queueMicrotask(() => {
             setMessages(parsed);
@@ -672,7 +708,10 @@ export default function Chatbot() {
         setSessionId(result.sessionId);
         setVisitor(result.visitor);
         hasLoadedHistoryRef.current = true;
-        localStorage.setItem(VISITOR_STORAGE_KEY, JSON.stringify(result.visitor));
+        localStorage.setItem(
+          VISITOR_STORAGE_KEY,
+          JSON.stringify(result.visitor),
+        );
 
         const opening: Message[] = [
           {
@@ -683,7 +722,10 @@ export default function Chatbot() {
         ];
         setMessages(opening);
         prevMessagesRef.current = opening;
-        localStorage.setItem(getChatHistoryKey(result.sessionId), JSON.stringify(opening));
+        localStorage.setItem(
+          getChatHistoryKey(result.sessionId),
+          JSON.stringify(opening),
+        );
       } catch (error) {
         const { message } = getErrorMessage(error);
         setNotice({
@@ -694,20 +736,27 @@ export default function Chatbot() {
         setIsStartingChat(false);
       }
     },
-    []
+    [],
   );
 
   const handleSendMessage = useCallback(
     async (textToSend: string) => {
       if (isLoading || !sessionId || !visitor) return;
 
-      const pairId = crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+      const pairId = crypto.randomUUID
+        ? crypto.randomUUID()
+        : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
       const sentAt = new Date().toISOString();
 
       setInput("");
       setNotice(null);
 
-      const userMsg: Message = { role: "user", content: textToSend, sentAt, pairId };
+      const userMsg: Message = {
+        role: "user",
+        content: textToSend,
+        sentAt,
+        pairId,
+      };
       setMessages((prev) => [...prev, userMsg]);
 
       setIsLoading(true);
@@ -715,7 +764,12 @@ export default function Chatbot() {
         const res = await fetch("/api/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ message: textToSend, sessionId, visitor, sentAt }),
+          body: JSON.stringify({
+            message: textToSend,
+            sessionId,
+            visitor,
+            sentAt,
+          }),
         });
         const data = await res.json();
         const receivedAt = new Date().toISOString();
@@ -750,7 +804,7 @@ export default function Chatbot() {
         setIsLoading(false);
       }
     },
-    [isLoading, sessionId, visitor]
+    [isLoading, sessionId, visitor],
   );
 
   const startNewChat = useCallback(() => {
@@ -789,7 +843,10 @@ export default function Chatbot() {
       ];
       setMessages(newMsgs);
       prevMessagesRef.current = newMsgs;
-      localStorage.setItem(getChatHistoryKey(data.sessionId), JSON.stringify(newMsgs));
+      localStorage.setItem(
+        getChatHistoryKey(data.sessionId),
+        JSON.stringify(newMsgs),
+      );
     } catch (error) {
       const { message } = getErrorMessage(error);
       setNotice({
@@ -803,10 +860,28 @@ export default function Chatbot() {
   }, [visitor, sessionId]);
 
   const resetVisitorData = useCallback(() => {
+    // 1. Hapus riwayat sesi aktif saat ini
     if (sessionId) {
       localStorage.removeItem(getChatHistoryKey(sessionId));
     }
+
+    // 2. PERBAIKAN: Sapu bersih semua data riwayat chat lama/kosong yang tertinggal di localStorage
+    if (typeof window !== "undefined") {
+      const keysToRemove: string[] = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith("pmb_chat_history_")) {
+          keysToRemove.push(key);
+        }
+      }
+      // Eksekusi penghapusan seluruh history lama
+      keysToRemove.forEach((key) => localStorage.removeItem(key));
+    }
+
+    // 3. Hapus data visitor utama
     localStorage.removeItem(VISITOR_STORAGE_KEY);
+
+    // 4. Reset state aplikasi
     setVisitor(null);
     setSessionId(null);
     setMessages([]);
@@ -827,12 +902,19 @@ export default function Chatbot() {
         {!isMinimized && (
           <div className="relative max-w-[190px] rounded-[26px] border border-sky-100 bg-white px-4 py-3 text-right shadow-xl shadow-sky-900/12">
             <span className="absolute -right-1 bottom-5 h-4 w-4 rotate-45 border-r border-t border-sky-100 bg-white" />
-            <p className="relative text-[11px] font-bold uppercase tracking-normal text-[#087ee7]">Fitur Baru</p>
-            <p className="relative mt-0.5 text-sm font-extrabold leading-snug text-[#11192d]">Tanya AI</p>
+            <p className="relative text-[11px] font-bold uppercase tracking-normal text-[#087ee7]">
+              Fitur Baru
+            </p>
+            <p className="relative mt-0.5 text-sm font-extrabold leading-snug text-[#11192d]">
+              Tanya AI
+            </p>
           </div>
         )}
         <button
-          onClick={() => { setIsOpen(true); setIsMinimized(false); }}
+          onClick={() => {
+            setIsOpen(true);
+            setIsMinimized(false);
+          }}
           className={`relative flex items-center justify-center rounded-full bg-[#075da8] text-white shadow-xl shadow-[#063f73]/30 ring-4 ring-white/95 transition-all duration-200 hover:-translate-y-0.5 hover:scale-105 hover:bg-[#064f90] ${
             isMinimized ? "h-14 w-14" : "h-16 w-16"
           }`}
@@ -877,7 +959,9 @@ export default function Chatbot() {
             <ConfirmationDialog
               action={confirmationAction}
               onConfirm={
-                confirmationAction === "new-chat" ? confirmNewChat : resetVisitorData
+                confirmationAction === "new-chat"
+                  ? confirmNewChat
+                  : resetVisitorData
               }
               onCancel={() => setConfirmationAction(null)}
               isProcessing={isCreatingNewChat}
