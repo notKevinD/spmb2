@@ -93,7 +93,6 @@ export async function POST(req: NextRequest) {
     const sessionId = randomUUID();
 
     const visitor = {
-      id: randomUUID(),
       name,
       phone: normalizedPhone,
       school,
@@ -148,11 +147,20 @@ export async function POST(req: NextRequest) {
         { status: 500 },
       );
     }
+    if (!n8nData?.visitor?.visitor_uuid) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Visitor UUID tidak dikembalikan oleh n8n.",
+        },
+        { status: 500 },
+      );
+    }
 
     const response = NextResponse.json({
       success: true,
       sessionId,
-      visitor,
+      visitor: n8nData.visitor,
       message: "Session berhasil dibuat.",
     });
 

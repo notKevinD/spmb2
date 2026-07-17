@@ -29,6 +29,7 @@ type Message = {
 };
 
 type Visitor = {
+  visitor_uuid: string;
   name: string;
   phone: string;
   school: string;
