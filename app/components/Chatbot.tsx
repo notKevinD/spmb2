@@ -83,6 +83,9 @@ function formatDateTime(value?: string): string {
 // ============================================
 
 function AssistantMarkdownRenderer({ content }: { content: string }) {
+  // Membersihkan newline berlebih agar spasi list/paragraf rapat
+  const cleanedContent = content.replace(/\n+/g, "\n");
+
   return (
     <ReactMarkdown
       components={{
@@ -101,19 +104,20 @@ function AssistantMarkdownRenderer({ content }: { content: string }) {
             </a>
           );
         },
-        ul: ({ children }) => <ul className="list-disc pl-4 space-y-1 my-1 text-slate-800">{children}</ul>,
-        ol: ({ children }) => <ol className="list-decimal pl-4 space-y-1 my-1 text-slate-800">{children}</ol>,
+        ul: ({ children }) => <ul className="list-disc pl-4 my-1 space-y-0.5 text-slate-800">{children}</ul>,
+        ol: ({ children }) => <ol className="list-decimal pl-4 my-1 space-y-0.5 text-slate-800">{children}</ol>,
+        li: ({ children }) => <li className="my-0.5">{children}</li>,
         strong: ({ children }) => <strong className="font-bold text-gray-900">{children}</strong>,
-        p: ({ children }) => <p className="m-0 leading-relaxed text-slate-800">{children}</p>,
+        p: ({ children }) => <p className="m-0 leading-normal text-slate-800">{children}</p>,
       }}
     >
-      {content}
+      {cleanedContent}
     </ReactMarkdown>
   );
 }
 
 // ============================================
-// KOMPONEN MESSAGE LIST (DENGAN AUTO-SCROLL PINTAR)
+// KOMPONEN MESSAGE LIST (AUTO-SCROLL PINTAR)
 // ============================================
 function MessageList({
   messages,
@@ -124,7 +128,7 @@ function MessageList({
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Mekanisme auto-scroll berbasis scrollHeight kontainer utama
+  // Auto-scroll berbasis scrollHeight kontainer utama
   useEffect(() => {
     if (containerRef.current) {
       containerRef.current.scrollTo({
@@ -146,9 +150,9 @@ function MessageList({
           className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
         >
           <div
-            className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed whitespace-pre-line shadow-sm ${
+            className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed shadow-sm ${
               message.role === "user"
-                ? "rounded-br-sm bg-[#075da8] text-white shadow-md shadow-[#063f73]/20"
+                ? "rounded-br-sm bg-[#075da8] text-white shadow-md shadow-[#063f73]/20 whitespace-pre-line"
                 : "rounded-bl-sm border border-[#d4e1ee] bg-white text-[#243b53] shadow-sm shadow-[#102a43]/5"
             }`}
           >
